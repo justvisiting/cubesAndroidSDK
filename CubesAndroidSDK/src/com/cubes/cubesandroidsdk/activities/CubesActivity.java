@@ -22,6 +22,9 @@ public class CubesActivity extends Activity{
 		
 		// loadAdCubesTextView for test 
 		loadAdCubesTextView(getResources().getString(R.string.text_ad), Gravity.CENTER, RelativeLayout.ALIGN_PARENT_BOTTOM);
+	
+		// loadAdCubesBannerImageView for test 
+		loadAdBannerCubesImageView(R.drawable.ic_launcher, Gravity.CENTER, RelativeLayout.CENTER_IN_PARENT);
 	}
 
 	// In your sample project just override getLayoutResId
@@ -37,7 +40,7 @@ public class CubesActivity extends Activity{
 	 * Show Ad TextView (text ad is hard coded)
 	 */
 	protected void loadAdCubesTextView(String text, int gravity, int gravityLayout){
-		CubesTextView cubesTextView = (CubesTextView) findViewById(R.id.cubes_textView);
+		CubesTextView cubesTextView = (CubesTextView) findViewById(R.id.cubes_textview);
 		if (cubesTextView != null){
 			cubesTextView.setText(text);
 			cubesTextView.setGravity(gravity);
@@ -54,7 +57,7 @@ public class CubesActivity extends Activity{
 	 * Show Ad Banner ImageView (image ad banner is hard coded)
 	 */
 	protected void loadAdBannerCubesImageView(int resId, int gravity, int gravityLayout){
-		CubesAdBannerImageView cubesAdBannerImageView = (CubesAdBannerImageView) findViewById(R.id.cubes_textView);
+		CubesAdBannerImageView cubesAdBannerImageView = (CubesAdBannerImageView) findViewById(R.id.cubes_adbanner_imageview);
 		if (cubesAdBannerImageView != null){
 			LayoutParams lp = new RelativeLayout.LayoutParams(
 					RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -70,7 +73,8 @@ public class CubesActivity extends Activity{
 	 * Show Ad Interstitial ImageView (image ad  intertitial is hard coded)
 	 */
 	protected void loadAdInterstitialCubesImageView(int resId, int gravity){
-		CubesAdInterstitialImageView cubesAdIntertitialImageView = (CubesAdInterstitialImageView) findViewById(R.id.cubes_textView);
+		// TODO: add intertitial for some time
+		/*CubesAdInterstitialImageView cubesAdIntertitialImageView = (CubesAdInterstitialImageView) findViewById(R.id.cubes_textView);
 		if (cubesAdIntertitialImageView != null){
 			
 			LayoutParams lp = new RelativeLayout.LayoutParams(
@@ -79,6 +83,6 @@ public class CubesActivity extends Activity{
 			cubesAdIntertitialImageView.setLayoutParams(lp);
 			
 			cubesAdIntertitialImageView.setImageResource(resId);
-		}
+		}*/
 	}
 }
