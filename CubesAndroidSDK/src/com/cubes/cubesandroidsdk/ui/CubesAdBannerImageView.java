@@ -1,6 +1,7 @@
 package com.cubes.cubesandroidsdk.ui;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -10,13 +11,20 @@ public class CubesAdBannerImageView extends ImageView{
 	public CubesAdBannerImageView(Context context) {
 		super(context);
 	}
-	
+
 	public CubesAdBannerImageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 
 	public CubesAdBannerImageView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+	}
+
+	@Override
+	protected void onDraw(Canvas canvas)
+	{
+		// TODO Auto-generated method stub
+		super.onDraw(canvas);
 	}
 
 }
