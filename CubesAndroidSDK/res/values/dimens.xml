@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="cubes_banner_text_size">18sp</dimen>
+    
+    <dimen name="ads_multipart_bar_image_height">36px</dimen>
+    <dimen name="ads_multipart_bar_image_width">220px</dimen>
 </resources>

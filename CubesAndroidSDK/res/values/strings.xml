@@ -1,6 +1,17 @@
 <resources>
 
     <string name="app_name">CubesAndroidSDK</string>
-    <string name="text_ad">text ad is hard coded text ad is hard coded text ad is hard coded </string>
+    
+    <string name="action_settings">Settings</string>
+     <string name="preference_activity_title">CubesAndroidSDK preference</string>
+    <!-- Name of extension, shown in preferences -->
+    <string name="extension_name">CubesAndroidSDK extension</string>
+    <!-- Configuration title shown in preferences -->
+    <string name="configuration_text">CubesAndroidSDK settings</string>
+    <string name="preference_key_read_me">preference_key_read_me</string>
+    <!-- Menu option shown in preferences -->
+    <string name="preference_option_read_me">READ ME</string>
+    <!-- Read me text shown in dialog -->
+    <string name="preference_option_read_me_txt">This extension shows how can use CubesAndroid SDK for showing ads in Sony SmartWatch </string>
 
 </resources>
