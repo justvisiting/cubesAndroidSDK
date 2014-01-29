@@ -35,9 +35,7 @@ package com.cubes.cubesandroidsdk.smartextensions.controls;
 import android.content.Context;
 import android.content.Intent;
 
-import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
-
-public class ManagedControlExtension extends ControlExtension {
+public class ManagedControlExtension extends AdsControlExtension {
 	
     /**
      * Name for extra data put in ManagedControlExtension intents. Identifies

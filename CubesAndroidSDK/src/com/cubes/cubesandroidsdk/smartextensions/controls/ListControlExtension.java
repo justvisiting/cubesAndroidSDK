@@ -79,6 +79,8 @@ public class ListControlExtension extends ManagedControlExtension {
         int startPosition = getIntent().getIntExtra(GalleryTestControl.EXTRA_INITIAL_POSITION, 0);
         mLastKnowPosition = startPosition;
         sendListPosition(R.id.listView, startPosition);
+        
+        showAdsBar(R.id.ads_container);
     }
 
     @Override
