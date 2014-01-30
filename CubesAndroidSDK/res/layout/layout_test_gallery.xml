@@ -5,11 +5,19 @@
     android:layout_height="@dimen/smart_watch_2_control_height"
     tools:ignore="PxUsage,UselessParent,HardcodedText" >
 
+    <ImageView
+        android:id="@+id/ads_container_gallery"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:clickable="true" />
+
     <Gallery
         android:id="@+id/gallery"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_centerInParent="true" >
+        android:layout_height="wrap_content"
+        android:layout_above="@id/ads_container_gallery"
+        android:layout_alignParentTop="true" >
     </Gallery>
 
 </RelativeLayout>

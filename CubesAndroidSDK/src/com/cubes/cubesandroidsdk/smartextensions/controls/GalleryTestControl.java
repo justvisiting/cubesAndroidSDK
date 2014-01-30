@@ -80,6 +80,7 @@ public class GalleryTestControl extends ManagedControlExtension {
 		int startPosition = getIntent().getIntExtra(EXTRA_INITIAL_POSITION, 0);
 		mLastKnowPosition = startPosition;
 		sendListPosition(R.id.gallery, startPosition);
+		showAdsBar(R.id.ads_container_gallery);
 	}
 
 	@Override
