@@ -5,21 +5,5 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <com.cubes.cubesandroidsdk.ui.CubesTextView
-        android:id="@+id/cubes_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:background="@android:color/black"
-        android:textSize="@dimen/cubes_banner_text_size" />
-    
-    <!-- 
-    <com.cubes.cubesandroidsdk.ui.CubesAdBannerImageView
-        android:id="@+id/cubes_adbanner_imageview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:background="@android:color/black"
-        android:textSize="@dimen/cubes_banner_text_size" />
- -->
+
 </RelativeLayout>
