@@ -14,4 +14,6 @@
     <!-- Read me text shown in dialog -->
     <string name="preference_option_read_me_txt">This extension shows how can use CubesAndroid SDK for showing ads in Sony SmartWatch </string>
 
+    
+    <string name="ads_empty_banner_text">Loading...</string>
 </resources>
