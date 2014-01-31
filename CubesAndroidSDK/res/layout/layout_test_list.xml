@@ -8,8 +8,8 @@
     <ImageView
         android:layout_alignParentTop="true"
         android:id="@+id/ads_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/ads_multipart_bar_image_width"
+        android:layout_height="@dimen/ads_multipart_bar_image_height"
         android:clickable="true" />
 
     <ListView

@@ -140,7 +140,7 @@ public class AdsControlExtension extends ControlExtension implements
 	
 	private Bitmap makeTextAd(Bitmap bitmap) {
 		
-		return setTextIntoBitmap(bitmap, "Your ads can be here! LARGE TEXT");
+		return setTextIntoBitmap(bitmap, "Your ads can be here!");
 	}
 	
 	private Bitmap makeEmptyAd(Bitmap bitmap) {
