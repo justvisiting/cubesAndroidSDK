@@ -7,6 +7,7 @@ public abstract class AbstractScheduler {
 	private long intervalInMillis;
 	private Handler handler;
 	private Runnable callback;
+	private boolean isStarted;
 
 	/**
 	 * 
@@ -36,6 +37,11 @@ public abstract class AbstractScheduler {
 	 * {@link AbstractScheduler#onTick()}
 	 */
 	public void start() {
+		
+		if(isStarted) {
+			return;
+		}
+		isStarted = true;
 		nextTick();
 	}
 
@@ -43,6 +49,10 @@ public abstract class AbstractScheduler {
 	 * Stop timer's work
 	 */
 	public void stop() {
+		if(!isStarted) {
+			return;
+		}
+		isStarted = false;
 		handler.removeCallbacks(callback);
 	}
 
