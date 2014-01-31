@@ -31,6 +31,7 @@
         </activity>
 
         <service android:name=".smartextensions.SmartExtensionService" />
+        <service android:name=".service.AdsManagerService"></service>
 
         <receiver
             android:name=".smartextensions.ExtensionReceiver"
