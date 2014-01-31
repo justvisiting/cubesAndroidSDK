@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.cubes.cubesandroidsdk.R;
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
+import com.cubes.cubesandroidsdk.adsmanager.Configuration;
 import com.cubes.cubesandroidsdk.schedulers.AbstractScheduler;
 import com.cubes.cubesandroidsdk.schedulers.AdsShowingScheduler;
 import com.cubes.cubesandroidsdk.schedulers.AdsShowingScheduler.IAdsChanger;
@@ -49,15 +50,13 @@ public class AdsControlExtension extends ControlExtension implements
 	
 	private List<AdsInstance> adsList;
 	
-	private static final long ADS_INTERVAL = 20000L;
-
 	public AdsControlExtension(Context context, String hostAppPackageName) {
 		super(context, hostAppPackageName);
 		width = getBarWidth();
 		height = getBarHeight();
 		mBackground = Bitmap.createBitmap(width, height, BITMAP_CONFIG);
 		mBackground.setDensity(DisplayMetrics.DENSITY_DEFAULT);
-		scheduler = new AdsShowingScheduler(this, ADS_INTERVAL);
+		scheduler = new AdsShowingScheduler(this, Configuration.getInstance().getAdsBarChangeIntervalMillis());
 		adsServiceConnection = prepareServiceConnection();
 	    bindToService();
 	}
