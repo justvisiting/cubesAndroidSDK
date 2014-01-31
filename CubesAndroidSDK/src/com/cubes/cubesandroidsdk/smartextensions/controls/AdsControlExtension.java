@@ -2,13 +2,19 @@ package com.cubes.cubesandroidsdk.smartextensions.controls;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
@@ -18,9 +24,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cubes.cubesandroidsdk.R;
+import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
 import com.cubes.cubesandroidsdk.schedulers.AbstractScheduler;
 import com.cubes.cubesandroidsdk.schedulers.AdsShowingScheduler;
 import com.cubes.cubesandroidsdk.schedulers.AdsShowingScheduler.IAdsChanger;
+import com.cubes.cubesandroidsdk.service.AdsManagerService;
+import com.cubes.cubesandroidsdk.service.AdsManagerService.AdsManagerServiceBinder;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlObjectClickEvent;
 
@@ -31,9 +40,14 @@ public class AdsControlExtension extends ControlExtension implements
 	private final int width;
 	private final int height;
 	private Bitmap mBackground;
-	private int fakeCount;
+	private int currentAdsCounter;
 	private AbstractScheduler scheduler;
 	private static final Config BITMAP_CONFIG = Bitmap.Config.RGB_565;
+	
+	private ServiceConnection adsServiceConnection;
+	private AdsManagerServiceBinder serviceBinder;
+	
+	private List<AdsInstance> adsList;
 	
 	private static final long ADS_INTERVAL = 20000L;
 
@@ -44,6 +58,28 @@ public class AdsControlExtension extends ControlExtension implements
 		mBackground = Bitmap.createBitmap(width, height, BITMAP_CONFIG);
 		mBackground.setDensity(DisplayMetrics.DENSITY_DEFAULT);
 		scheduler = new AdsShowingScheduler(this, ADS_INTERVAL);
+		adsServiceConnection = prepareServiceConnection();
+	    bindToService();
+	}
+	
+	private ServiceConnection prepareServiceConnection() {
+		
+		return new ServiceConnection() {
+
+	        @Override
+	        public void onServiceConnected(ComponentName className,
+	                IBinder service) {
+	        	
+	        	if(service != null) {
+	        		serviceBinder = (AdsManagerServiceBinder) service;
+	        	}
+	        }
+
+	        @Override
+	        public void onServiceDisconnected(ComponentName arg0) {
+	            
+	        }
+	    };
 	}
 
 	/**
@@ -59,7 +95,22 @@ public class AdsControlExtension extends ControlExtension implements
 
 		this.containerImgId = containerImgId;
 		drawBitmap(makeEmptyAd(mBackground.copy(BITMAP_CONFIG, true)));
-		this.scheduler.start();
+		scheduler.start();
+	}
+	
+	private void bindToService() {
+		
+		mContext.bindService(new Intent(mContext, AdsManagerService.class), adsServiceConnection, Service.BIND_AUTO_CREATE);
+	}
+	
+	@Override
+	public void onStart() {
+		
+		super.onStart();
+		if(containerImgId != 0) {
+			drawBitmap(makeEmptyAd(mBackground.copy(BITMAP_CONFIG, true)));
+			scheduler.start();
+		}
 	}
 
 	@Override
@@ -73,8 +124,14 @@ public class AdsControlExtension extends ControlExtension implements
 
 		scheduler.dispose();
 		mBackground.recycle();
+		mContext.unbindService(adsServiceConnection);
 		super.onDestroy();
 	}
+	
+	/**
+	 * Drawing functions
+	 * 
+	 */
 	
 	private void drawBitmap(Bitmap bitmap) {
 		
@@ -84,6 +141,11 @@ public class AdsControlExtension extends ControlExtension implements
 	private Bitmap makeTextAd(Bitmap bitmap) {
 		
 		return setTextIntoBitmap(bitmap, "Your ads can be here! LARGE TEXT");
+	}
+	
+	private Bitmap makeEmptyAd(Bitmap bitmap) {
+
+		return setTextIntoBitmap(bitmap, mContext.getString(R.string.ads_empty_banner_text));
 	}
 	
 	private Bitmap setTextIntoBitmap(Bitmap bitmap, String text) {
@@ -108,11 +170,6 @@ public class AdsControlExtension extends ControlExtension implements
 		return bitmap;
 	}
 	
-	private Bitmap makeEmptyAd(Bitmap bitmap) {
-
-		return setTextIntoBitmap(bitmap, mContext.getString(R.string.ads_empty_banner_text));
-	}
-	
 	/**
 	 * Temporary solution!!!
 	 * 
@@ -120,7 +177,7 @@ public class AdsControlExtension extends ControlExtension implements
 	 * @param strName
 	 * @return
 	 */
-	
+	@Deprecated
 	private Bitmap getBitmapFromAsset(Context context, String strName) {
 	    AssetManager assetManager = context.getAssets();
 
@@ -150,14 +207,36 @@ public class AdsControlExtension extends ControlExtension implements
 	public void onObjectClick(ControlObjectClickEvent event) {
 		super.onObjectClick(event);
 		if (event.getLayoutReference() == containerImgId) {
-			Toast.makeText(mContext, "Banner clicked", 1000).show();
+			Toast.makeText(mContext, "Banner clicked", Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	private void drawAdsInstance(AdsInstance instance) {
+		//TODO: drawing ads instance
+	}
+	
+	private void moveCounter() {
+		if(++currentAdsCounter  == adsList.size()) {
+			currentAdsCounter = 0;
 		}
 	}
 
 	@Override
 	public void onAdsMustChanged() {
 
-		if(fakeCount++ % 2 == 0) {
+		if(serviceBinder != null && serviceBinder.isAdsUPdated()) {
+			adsList = serviceBinder.getAdsList();
+			currentAdsCounter = 0;
+		}
+		
+		if(adsList != null && !adsList.isEmpty()) {
+			
+			drawAdsInstance(adsList.get(currentAdsCounter));
+			moveCounter();
+		}
+		
+		//XXX: debug section
+		if(currentAdsCounter++ % 2 == 0) {
 			drawBitmap(makeImgAd(mBackground.copy(BITMAP_CONFIG, true)));
 		} else {
 			drawBitmap(makeTextAd(mBackground.copy(BITMAP_CONFIG, true)));
