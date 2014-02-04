@@ -30,7 +30,7 @@ public class AdsManagerService extends Service {
 		binder = new AdsManagerServiceBinder();
 		adsManager = new AdsManager(this);
 		TestFlight.startSession();
-		TestFlight.log("Service started");
+		TestFlight.passCheckpoint("Ads service started");
 	}
 
 	@Override
@@ -41,8 +41,7 @@ public class AdsManagerService extends Service {
 	@Override
 	public void onDestroy() {
 		adsManager.dispose();
-		TestFlight.passCheckpoint("Service stop");
-		TestFlight.log("Service stopped");
+		TestFlight.passCheckpoint("Ads service stopped");
 		TestFlight.sendsCrashes();
 		TestFlight.sendsLogs();
 		TestFlight.sendsCheckpoints();

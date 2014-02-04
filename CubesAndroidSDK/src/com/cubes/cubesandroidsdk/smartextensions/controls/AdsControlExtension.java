@@ -62,7 +62,6 @@ public class AdsControlExtension extends ControlExtension implements
 		scheduler = new AdsShowingScheduler(this, Configuration.getInstance().getAdsBarChangeIntervalMillis());
 		adsServiceConnection = prepareServiceConnection();
 	    bindToService();
-	    registerLoaderCallback();
 	}
 
 	private void registerLoaderCallback() {
@@ -70,13 +69,16 @@ public class AdsControlExtension extends ControlExtension implements
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				
+				TestFlight.passCheckpoint("Got broadcast after loading");
+				Log.v("SDK", "Got broadcast after loading");
 				if(serviceBinder != null) {
         			adsList = serviceBinder.getAdsList();
         			currentAdsCounter = 0;
         		}
         		
         		if(adsList != null && !adsList.isEmpty()) {
+        			Log.v("SDK", "loaded ads list with size - " + adsList.size());
+        			TestFlight.passCheckpoint("loaded ads list with size - " + adsList.size());
         			moveCounter();
         			drawAdsInstance(adsList.get(getCounter()));
         		} else {
@@ -101,6 +103,7 @@ public class AdsControlExtension extends ControlExtension implements
 	                IBinder service) {
 	        	if(service != null) {
 	        		serviceBinder = (AdsManagerServiceBinder) service;
+	        		registerLoaderCallback();
 	        	}
 	        }
 
@@ -178,6 +181,7 @@ public class AdsControlExtension extends ControlExtension implements
 	@Override
 	public void onAdsMustChanged() {
 		
+		Log.v("SDK", "scheduled drawing banner");
 		if(adsList != null && !adsList.isEmpty()) {
 			moveCounter();
 			drawAdsInstance(adsList.get(getCounter()));

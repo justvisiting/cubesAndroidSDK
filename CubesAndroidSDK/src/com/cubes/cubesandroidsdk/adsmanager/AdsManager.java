@@ -41,7 +41,7 @@ public class AdsManager implements IAdsUpdateCallback {
 		if(newAdsList != null && !newAdsList.isEmpty()) {
 			adsList.clear();
 			adsList.addAll(newAdsList);
-			context.sendBroadcast(new Intent(Configuration.ACTION_SEND_LOADER_CALLBACK));
+			context.sendStickyBroadcast(new Intent(Configuration.ACTION_SEND_LOADER_CALLBACK));
 			TestFlight.passCheckpoint("Ads loaded, callback sent!");
 		}
 	}
