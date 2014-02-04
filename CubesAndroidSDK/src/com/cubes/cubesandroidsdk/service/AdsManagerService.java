@@ -29,6 +29,7 @@ public class AdsManagerService extends Service {
 		super.onCreate();
 		binder = new AdsManagerServiceBinder();
 		adsManager = new AdsManager(this);
+		TestFlight.startSession();
 		TestFlight.log("Service started");
 	}
 
@@ -44,6 +45,9 @@ public class AdsManagerService extends Service {
 		TestFlight.log("Service stopped");
 		TestFlight.sendsCrashes();
 		TestFlight.sendsLogs();
+		TestFlight.sendsCheckpoints();
+		TestFlight.endSession();
+		
 		super.onDestroy();
 	}
 	
