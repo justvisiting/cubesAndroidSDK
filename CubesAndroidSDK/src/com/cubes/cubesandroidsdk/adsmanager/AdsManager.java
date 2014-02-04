@@ -8,6 +8,7 @@ import android.content.Intent;
 
 import com.cubes.cubesandroidsdk.schedulers.AdsUpdateScheduler;
 import com.cubes.cubesandroidsdk.schedulers.AdsUpdateScheduler.IAdsUpdateCallback;
+import com.testflightapp.lib.TestFlight;
 
 /**
  * Class that encapsulate business-logic of application - control of update, store and remove ads 
@@ -40,8 +41,9 @@ public class AdsManager implements IAdsUpdateCallback {
 		if(newAdsList != null && !newAdsList.isEmpty()) {
 			adsList.clear();
 			adsList.addAll(newAdsList);
+			context.sendBroadcast(new Intent(Configuration.ACTION_SEND_LOADER_CALLBACK));
+			TestFlight.passCheckpoint("Ads loaded, callback sent!");
 		}
-		context.sendBroadcast(new Intent(Configuration.ACTION_SEND_LOADER_CALLBACK));
 	}
 	
 	public void dispose() {

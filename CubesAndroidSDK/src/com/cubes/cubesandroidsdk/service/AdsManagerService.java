@@ -40,6 +40,7 @@ public class AdsManagerService extends Service {
 	@Override
 	public void onDestroy() {
 		adsManager.dispose();
+		TestFlight.passCheckpoint("Service stop");
 		TestFlight.log("Service stopped");
 		TestFlight.sendsCrashes();
 		TestFlight.sendsLogs();
