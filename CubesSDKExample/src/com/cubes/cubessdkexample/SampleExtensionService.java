@@ -39,6 +39,7 @@ import com.sonyericsson.extras.liveware.extension.util.ExtensionService;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
 import com.sonyericsson.extras.liveware.extension.util.registration.DeviceInfoHelper;
 import com.sonyericsson.extras.liveware.extension.util.registration.RegistrationInformation;
+import com.testflightapp.lib.TestFlight;
 
 /**
  * The Sample Extension Service handles registration and keeps track of all
@@ -62,6 +63,7 @@ public class SampleExtensionService extends ExtensionService {
     @Override
     public void onCreate() {
         super.onCreate();
+        TestFlight.startSession();
         Log.d(SampleExtensionService.LOG_TAG, "Service: onCreate");
     }
 
@@ -97,4 +99,14 @@ public class SampleExtensionService extends ExtensionService {
                     hostAppPackageName);
         }
     }
+
+	@Override
+	public void onDestroy() {
+
+		TestFlight.endSession();
+		TestFlight.sendsLogs();
+		super.onDestroy();
+	}
+    
+    
 }
