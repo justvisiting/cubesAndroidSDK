@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.cubes.cubesandroidsdk.adsmanager.AdsImageParser;
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
@@ -21,6 +22,8 @@ import com.cubes.cubesandroidsdk.networkloader.loader.responses.HttpResponse;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.IClientCallback;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.IResponse;
 import com.cubes.cubesandroidsdk.utils.AdXmlElements;
+import com.cubes.cubesandroidsdk.utils.UrlManager;
+import com.testflightapp.lib.TestFlight;
 
 /**
  * Perform update ads by predefined schedule. Result will deliver to client
@@ -56,6 +59,8 @@ public class AdsUpdateScheduler extends AbstractScheduler implements
 	private void loadXmlAds() {
 		try {
 			executeRequest(prepareRequest(getUrlString()), new AdsXmlParser());
+			Log.v("SDK", "start load xml");
+			TestFlight.log("Start load XML");
 		} catch (MalformedURLException e) {
 			// TODO: delivering error message
 			e.printStackTrace();
@@ -66,6 +71,8 @@ public class AdsUpdateScheduler extends AbstractScheduler implements
 		AdXmlElements xml = (AdXmlElements) data;
 		
 		try {
+			Log.v("SDK", "start load image");
+			TestFlight.log("start load image");
 			executeRequest(prepareImageRequest(xml.get_bannerUrl(), Utils.convertXmlToAdsInstance(xml)), new AdsImageParser(context.getExternalCacheDir().getAbsolutePath()));
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -76,7 +83,8 @@ public class AdsUpdateScheduler extends AbstractScheduler implements
 	private String getUrlString() {
 
 		// TODO: implement getting of correct url
-		return "http://iphonepackers.info/bannerad.xml";
+//		return "http://iphonepackers.info/bannerad.xml";
+		return UrlManager.getUrl(1);
 	}
 
 	@Override
@@ -93,12 +101,15 @@ public class AdsUpdateScheduler extends AbstractScheduler implements
 			Object data = response.getData();
 
 			if (data instanceof AdXmlElements) {
-			
+				Log.v("SDK", "xml loaded");
+				TestFlight.log("xml loaded");
 				loadImageAds(data);
 			} else if (data instanceof AdsInstance) {
 
 				adsList.add((AdsInstance) data);
 				if(callback != null) {
+					TestFlight.log("image loaded, send result to back");
+					Log.v("SDK", "image loaded, send result to back");
 					callback.onAdsUpdate(adsList);
 				}
 			}

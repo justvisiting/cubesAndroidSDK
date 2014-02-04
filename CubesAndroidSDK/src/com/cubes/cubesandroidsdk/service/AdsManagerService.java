@@ -6,9 +6,11 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
 import com.cubes.cubesandroidsdk.adsmanager.AdsManager;
+import com.testflightapp.lib.TestFlight;
 
 /**
  * Service that provide interface to ads storage and keep long running operations and objects.
@@ -27,6 +29,7 @@ public class AdsManagerService extends Service {
 		super.onCreate();
 		binder = new AdsManagerServiceBinder();
 		adsManager = new AdsManager(this);
+		TestFlight.log("Service started");
 	}
 
 	@Override
@@ -37,9 +40,18 @@ public class AdsManagerService extends Service {
 	@Override
 	public void onDestroy() {
 		adsManager.dispose();
+		TestFlight.log("Service stopped");
+		TestFlight.sendsCrashes();
+		TestFlight.sendsLogs();
 		super.onDestroy();
 	}
 	
+	@Override
+	public boolean onUnbind(Intent intent) {
+		Log.v("SDK", "on unbind");
+		return super.onUnbind(intent);
+	}
+
 	public class AdsManagerServiceBinder extends Binder {
 		
 		/**
@@ -49,15 +61,6 @@ public class AdsManagerService extends Service {
 		public List<AdsInstance> getAdsList() {
 			
 			return adsManager.getAds();
-		}
-		
-		/**
-		 * Check that ads was updated. If new ads were loaded it set to true
-		 * @return - true if ads were updated, false otherwise
-		 */
-		public boolean isAdsUPdated() {
-			
-			return adsManager.isAdsUpdated();
 		}
 	}
 }

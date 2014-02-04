@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.content.Intent;
 
 import com.cubes.cubesandroidsdk.schedulers.AdsUpdateScheduler;
 import com.cubes.cubesandroidsdk.schedulers.AdsUpdateScheduler.IAdsUpdateCallback;
@@ -15,7 +16,6 @@ import com.cubes.cubesandroidsdk.schedulers.AdsUpdateScheduler.IAdsUpdateCallbac
  */
 public class AdsManager implements IAdsUpdateCallback {
 	
-	private boolean isAdsUpdated;
 	private List<AdsInstance> adsList;
 	private AdsUpdateScheduler updateScheduler;
 	private Context context;
@@ -27,17 +27,11 @@ public class AdsManager implements IAdsUpdateCallback {
 		this.updateScheduler.start();
 	}
 	
-	public boolean isAdsUpdated() {
-		
-		return isAdsUpdated;
-	}
-
 	/**
 	 * 
 	 * @return - all ads that application must show
 	 */
 	public List<AdsInstance> getAds() {
-		isAdsUpdated = false;
 		return adsList;
 	}
 
@@ -46,8 +40,8 @@ public class AdsManager implements IAdsUpdateCallback {
 		if(newAdsList != null && !newAdsList.isEmpty()) {
 			adsList.clear();
 			adsList.addAll(newAdsList);
-			isAdsUpdated = true;
 		}
+		context.sendBroadcast(new Intent(Configuration.ACTION_SEND_LOADER_CALLBACK));
 	}
 	
 	public void dispose() {

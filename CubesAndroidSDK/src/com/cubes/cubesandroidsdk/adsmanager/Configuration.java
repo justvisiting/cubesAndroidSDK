@@ -10,6 +10,11 @@ public class Configuration {
 	
 	public static final String ACTION_CLICK_ADS_EVENT = "com.cubes.cubesandroidsdk.adsclickevent";
 	
+	public static final String ACTION_SEND_LOADER_CALLBACK = "actionSendLoaderCallback";
+	
+	/**
+	 * Interval for updating bar while performing initial loading of ads
+	 */
 	private static Configuration instance;
 	
 	private static final long DEFAULT_ADS_UPDATE_INTERVAL = 20000L;

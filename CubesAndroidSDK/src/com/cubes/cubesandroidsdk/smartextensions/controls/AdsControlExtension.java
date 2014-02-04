@@ -3,9 +3,11 @@ package com.cubes.cubesandroidsdk.smartextensions.controls;
 import java.util.List;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -14,6 +16,7 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
@@ -31,6 +34,7 @@ import com.cubes.cubesandroidsdk.service.AdsManagerService;
 import com.cubes.cubesandroidsdk.service.AdsManagerService.AdsManagerServiceBinder;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlObjectClickEvent;
+import com.testflightapp.lib.TestFlight;
 
 public class AdsControlExtension extends ControlExtension implements
 		IAdsChanger {
@@ -45,6 +49,7 @@ public class AdsControlExtension extends ControlExtension implements
 	
 	private ServiceConnection adsServiceConnection;
 	private AdsManagerServiceBinder serviceBinder;
+	private BroadcastReceiver loaderCallback;
 	
 	private List<AdsInstance> adsList;
 	
@@ -57,6 +62,34 @@ public class AdsControlExtension extends ControlExtension implements
 		scheduler = new AdsShowingScheduler(this, Configuration.getInstance().getAdsBarChangeIntervalMillis());
 		adsServiceConnection = prepareServiceConnection();
 	    bindToService();
+	    registerLoaderCallback();
+	}
+
+	private void registerLoaderCallback() {
+		loaderCallback = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				
+				if(serviceBinder != null) {
+        			adsList = serviceBinder.getAdsList();
+        			currentAdsCounter = 0;
+        		}
+        		
+        		if(adsList != null && !adsList.isEmpty()) {
+        			moveCounter();
+        			drawAdsInstance(adsList.get(getCounter()));
+        		} else {
+        			drawBitmap(makeEmptyAd(getDrawingArea()));
+        		}
+			}
+		};
+		
+		mContext.registerReceiver(loaderCallback, new IntentFilter(Configuration.ACTION_SEND_LOADER_CALLBACK));
+	}
+	
+	private void unregisterLoaderCallback() {
+		mContext.unregisterReceiver(loaderCallback);
 	}
 	
 	private ServiceConnection prepareServiceConnection() {
@@ -90,8 +123,9 @@ public class AdsControlExtension extends ControlExtension implements
 	protected void showAdsBar(int containerImgId) {
 
 		this.containerImgId = containerImgId;
-		drawBitmap(makeEmptyAd(getDrawingArea()));
 		scheduler.start();
+		drawBitmap(makeEmptyAd(getDrawingArea()));
+		TestFlight.log("ShowAdsBar invoked");
 	}
 	
 	private void bindToService() {
@@ -120,9 +154,38 @@ public class AdsControlExtension extends ControlExtension implements
 
 		scheduler.dispose();
 		mBackground.recycle();
+		unregisterLoaderCallback();
 		mContext.unbindService(adsServiceConnection);
+		Log.v("SDK", "View - ondestroy");
 		super.onDestroy();
 	}
+	
+	@Override
+	public void onObjectClick(ControlObjectClickEvent event) {
+		super.onObjectClick(event);
+		if (event.getLayoutReference() == containerImgId) {
+			if(adsList != null && !adsList.isEmpty()) {
+				AdsInstance instance = adsList.get(getCounter());
+				mContext.sendBroadcast(
+						new Intent(Configuration.ACTION_CLICK_ADS_EVENT)
+							.putExtra(ClickReceiver.INTENT_CLICK_ACTION, instance.getClickAction())
+							.putExtra(ClickReceiver.INTENT_CLICK_DATA, instance.getClickData()));
+			}
+			
+		}
+	}
+	
+	@Override
+	public void onAdsMustChanged() {
+		
+		if(adsList != null && !adsList.isEmpty()) {
+			moveCounter();
+			drawAdsInstance(adsList.get(getCounter()));
+		} else {
+			drawBitmap(makeEmptyAd(getDrawingArea()));
+		}
+	}
+	
 	
 	/**
 	 * Drawing functions
@@ -169,20 +232,6 @@ public class AdsControlExtension extends ControlExtension implements
 				R.dimen.ads_multipart_bar_image_width);
 	}
 
-	@Override
-	public void onObjectClick(ControlObjectClickEvent event) {
-		super.onObjectClick(event);
-		if (event.getLayoutReference() == containerImgId) {
-			if(adsList != null && !adsList.isEmpty()) {
-				AdsInstance instance = adsList.get(getCounter());
-				mContext.sendBroadcast(
-						new Intent(Configuration.ACTION_CLICK_ADS_EVENT)
-							.putExtra(ClickReceiver.INTENT_CLICK_ACTION, instance.getClickAction())
-							.putExtra(ClickReceiver.INTENT_CLICK_DATA, instance.getClickData()));
-			}
-			
-		}
-	}
 	
 	private void drawAdsInstance(AdsInstance instance) {
 		try {
@@ -207,19 +256,5 @@ public class AdsControlExtension extends ControlExtension implements
 	private int getCounter() {
 	 
 		return currentAdsCounter;
-	}
-
-	@Override
-	public void onAdsMustChanged() {
-		
-		if(serviceBinder != null && serviceBinder.isAdsUPdated()) {
-			adsList = serviceBinder.getAdsList();
-			currentAdsCounter = 0;
-		}
-		
-		if(adsList != null && !adsList.isEmpty()) {
-			moveCounter();
-			drawAdsInstance(adsList.get(getCounter()));
-		}
 	}
 }
