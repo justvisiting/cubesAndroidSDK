@@ -55,12 +55,19 @@ public class AdsUpdateScheduler extends AbstractScheduler implements
 
 		loadXmlAds();
 	}
+	
+	@Override
+	public void start() {
+
+		loadXmlAds();
+		super.start();
+	}
 
 	private void loadXmlAds() {
 		try {
 			executeRequest(prepareRequest(getUrlString()), new AdsXmlParser());
 			Log.v("SDK", "start load xml");
-			TestFlight.log("Start load XML");
+			TestFlight.passCheckpoint("Start load XML");
 		} catch (MalformedURLException e) {
 			// TODO: delivering error message
 			e.printStackTrace();
@@ -72,7 +79,7 @@ public class AdsUpdateScheduler extends AbstractScheduler implements
 		
 		try {
 			Log.v("SDK", "start load image");
-			TestFlight.log("start load image");
+			TestFlight.passCheckpoint("start load image");
 			executeRequest(prepareImageRequest(xml.get_bannerUrl(), Utils.convertXmlToAdsInstance(xml)), new AdsImageParser(context.getExternalCacheDir().getAbsolutePath()));
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -100,18 +107,25 @@ public class AdsUpdateScheduler extends AbstractScheduler implements
 		if (resultCode == ResultCode.RESULT_SUCCESSFULL) {
 			Object data = response.getData();
 
+			//TODO: Need to be refactored!!!
 			if (data instanceof AdXmlElements) {
 				Log.v("SDK", "xml loaded");
-				TestFlight.log("xml loaded");
+				TestFlight.passCheckpoint("xml loaded");
 				loadImageAds(data);
 			} else if (data instanceof AdsInstance) {
 
-				adsList.add((AdsInstance) data);
-				if(callback != null) {
-					TestFlight.log("image loaded, send result to back");
-					Log.v("SDK", "image loaded, send result to back");
-					callback.onAdsUpdate(adsList);
+				AdsInstance instance = (AdsInstance) data;
+				TestFlight.passCheckpoint("image loaded");
+				Log.v("SDK", "image loaded");
+				if(!adsList.contains(instance)) {
+					TestFlight.passCheckpoint("send result to back");
+					Log.v("SDK", "send result to back");
+					adsList.add(instance);
+					if(callback != null) {
+						callback.onAdsUpdate(adsList);
+					}
 				}
+				
 			}
 		}
 	}
