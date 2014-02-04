@@ -1,7 +1,5 @@
 package com.cubes.cubesandroidsdk.smartextensions.controls;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import android.app.Service;
@@ -9,22 +7,22 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cubes.cubesandroidsdk.R;
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
+import com.cubes.cubesandroidsdk.adsmanager.ClickReceiver;
 import com.cubes.cubesandroidsdk.adsmanager.Configuration;
 import com.cubes.cubesandroidsdk.schedulers.AbstractScheduler;
 import com.cubes.cubesandroidsdk.schedulers.AdsShowingScheduler;
@@ -68,7 +66,6 @@ public class AdsControlExtension extends ControlExtension implements
 	        @Override
 	        public void onServiceConnected(ComponentName className,
 	                IBinder service) {
-	        	
 	        	if(service != null) {
 	        		serviceBinder = (AdsManagerServiceBinder) service;
 	        	}
@@ -93,7 +90,7 @@ public class AdsControlExtension extends ControlExtension implements
 	protected void showAdsBar(int containerImgId) {
 
 		this.containerImgId = containerImgId;
-		drawBitmap(makeEmptyAd(mBackground.copy(BITMAP_CONFIG, true)));
+		drawBitmap(makeEmptyAd(getDrawingArea()));
 		scheduler.start();
 	}
 	
@@ -107,7 +104,7 @@ public class AdsControlExtension extends ControlExtension implements
 		
 		super.onStart();
 		if(containerImgId != 0) {
-			drawBitmap(makeEmptyAd(mBackground.copy(BITMAP_CONFIG, true)));
+			drawBitmap(makeEmptyAd(getDrawingArea()));
 			scheduler.start();
 		}
 	}
@@ -162,36 +159,6 @@ public class AdsControlExtension extends ControlExtension implements
 		return bitmap;
 	}
 	
-	private Bitmap makeImgAd(Bitmap bitmap) {
-		
-		//XXX: Temporary solution
-		bitmap = getBitmapFromAsset(mContext, "banner_bar.png");
-		return bitmap;
-	}
-	
-	/**
-	 * Temporary solution!!!
-	 * 
-	 * @param context
-	 * @param strName
-	 * @return
-	 */
-	@Deprecated
-	private Bitmap getBitmapFromAsset(Context context, String strName) {
-	    AssetManager assetManager = context.getAssets();
-
-	    InputStream istr;
-	    Bitmap bitmap = null;
-	    try {
-	        istr = assetManager.open(strName);
-	        bitmap = BitmapFactory.decodeStream(istr);
-	    } catch (IOException e) {
-	        return null;
-	    }
-
-	    return bitmap;
-	}
-
 	private int getBarHeight() {
 		return mContext.getResources().getDimensionPixelSize(
 				R.dimen.ads_multipart_bar_image_height);
@@ -206,12 +173,29 @@ public class AdsControlExtension extends ControlExtension implements
 	public void onObjectClick(ControlObjectClickEvent event) {
 		super.onObjectClick(event);
 		if (event.getLayoutReference() == containerImgId) {
-			Toast.makeText(mContext, "Banner clicked", Toast.LENGTH_SHORT).show();
+			if(adsList != null && !adsList.isEmpty()) {
+				AdsInstance instance = adsList.get(getCounter());
+				mContext.sendBroadcast(
+						new Intent(Configuration.ACTION_CLICK_ADS_EVENT)
+							.putExtra(ClickReceiver.INTENT_CLICK_ACTION, instance.getClickAction())
+							.putExtra(ClickReceiver.INTENT_CLICK_DATA, instance.getClickData()));
+			}
+			
 		}
 	}
 	
 	private void drawAdsInstance(AdsInstance instance) {
-		//TODO: drawing ads instance
+		try {
+			drawBitmap(MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), Uri.parse(instance.getBarUriString())));
+		} catch (Exception e) {
+			e.printStackTrace();
+			makeEmptyAd(getDrawingArea());
+		}
+	}
+	
+	private Bitmap getDrawingArea() {
+		
+		return mBackground.copy(BITMAP_CONFIG, true);
 	}
 	
 	private void moveCounter() {
@@ -219,26 +203,23 @@ public class AdsControlExtension extends ControlExtension implements
 			currentAdsCounter = 0;
 		}
 	}
+	
+	private int getCounter() {
+	 
+		return currentAdsCounter;
+	}
 
 	@Override
 	public void onAdsMustChanged() {
-
+		
 		if(serviceBinder != null && serviceBinder.isAdsUPdated()) {
 			adsList = serviceBinder.getAdsList();
 			currentAdsCounter = 0;
 		}
 		
 		if(adsList != null && !adsList.isEmpty()) {
-			
-			drawAdsInstance(adsList.get(currentAdsCounter));
 			moveCounter();
-		}
-		
-		//XXX: debug section
-		if(currentAdsCounter++ % 2 == 0) {
-			drawBitmap(makeImgAd(mBackground.copy(BITMAP_CONFIG, true)));
-		} else {
-			drawBitmap(makeTextAd(mBackground.copy(BITMAP_CONFIG, true)));
+			drawAdsInstance(adsList.get(getCounter()));
 		}
 	}
 }

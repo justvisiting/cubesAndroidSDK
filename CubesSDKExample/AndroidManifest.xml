@@ -31,6 +31,12 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+        
+        <receiver android:name="com.cubes.cubesandroidsdk.adsmanager.ClickReceiver">
+            <intent-filter >
+                <action android:name="com.cubes.cubesandroidsdk.adsclickevent"/>
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".ExtensionReceiver"
