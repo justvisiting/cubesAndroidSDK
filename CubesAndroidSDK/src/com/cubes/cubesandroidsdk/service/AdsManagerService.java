@@ -26,7 +26,7 @@ public class AdsManagerService extends Service {
 		
 		super.onCreate();
 		binder = new AdsManagerServiceBinder();
-		adsManager = new AdsManager();
+		adsManager = new AdsManager(this);
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class AdsManagerService extends Service {
 	
 	@Override
 	public void onDestroy() {
-		
+		adsManager.dispose();
 		super.onDestroy();
 	}
 	

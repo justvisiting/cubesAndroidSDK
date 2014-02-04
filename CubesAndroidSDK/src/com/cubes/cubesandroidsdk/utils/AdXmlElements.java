@@ -7,8 +7,8 @@ import java.util.List;
 public class AdXmlElements {
 	private String _clickUrl;
 	private String _bannerUrl;
-	private ClickType _clickType;
-	private AdType _adType;
+	private int _clickType;
+	private int _adType;
 	private List<String> ExpandedUrl;
 	
 	public List<String> getExpandedUrl() {
@@ -29,16 +29,16 @@ public class AdXmlElements {
 	public void set_bannerUrl(String _bannerUrl) {
 		this._bannerUrl = _bannerUrl;
 	}
-	public ClickType get_clickType() {
+	public int get_clickType() {
 		return _clickType;
 	}
-	public void set_clickType(ClickType _clickType) {
+	public void set_clickType(int _clickType) {
 		this._clickType = _clickType;
 	}
-	public AdType get_adType() {
+	public int get_adType() {
 		return _adType;
 	}
-	public void set_adType(AdType _adType) {
+	public void set_adType(int _adType) {
 		this._adType = _adType;
 	}
 }

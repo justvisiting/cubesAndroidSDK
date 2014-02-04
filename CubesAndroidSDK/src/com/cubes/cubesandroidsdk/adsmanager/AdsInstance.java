@@ -6,7 +6,7 @@ public class AdsInstance {
 	private int adsType;
 	private int clickAction;
 	private String clickData;
-	private String bannerUriStrig;
+	private String bannerUriString;
 	private String barUriString;
 	private String barTextString;
 
@@ -16,6 +16,10 @@ public class AdsInstance {
 
 	public String getBarTextString() {
 		return barTextString;
+	}
+
+	public void setBarUriString(String barUriString) {
+		this.barUriString = barUriString;
 	}
 
 	public int getAdsType() {
@@ -31,7 +35,7 @@ public class AdsInstance {
 	}
 
 	public String getBannerUriString() {
-		return bannerUriStrig;
+		return bannerUriString;
 	}
 	
 	public AdsInstance(int adsType, int clickAction, String clickData,
@@ -39,8 +43,24 @@ public class AdsInstance {
 		this.adsType = adsType;
 		this.clickAction = clickAction;
 		this.clickData = clickData;
-		this.bannerUriStrig = bannerUriStrig;
+		this.bannerUriString = bannerUriStrig;
 		this.barUriString = barUriString;
 		this.barTextString = barTextString;
 	}
+	
+	public AdsInstance() {
+		
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		
+		if(!(o instanceof AdsInstance)) {
+			return false;
+		}
+		AdsInstance instance = (AdsInstance) o;
+		return (instance.getClickData().equalsIgnoreCase(clickData)) && (instance.getAdsType() == adsType);
+	}
+	
+	
 }
