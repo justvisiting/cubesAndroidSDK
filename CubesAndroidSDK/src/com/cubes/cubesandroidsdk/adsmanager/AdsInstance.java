@@ -54,6 +54,10 @@ public class AdsInstance {
 		return (!TextUtils.isEmpty(barTextString));
 	}
 
+	public void setBarTextString(String barTextString) {
+		this.barTextString = barTextString;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		
