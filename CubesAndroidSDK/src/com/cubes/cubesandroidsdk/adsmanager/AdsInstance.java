@@ -1,5 +1,7 @@
 package com.cubes.cubesandroidsdk.adsmanager;
 
+import android.text.TextUtils;
+
 
 public class AdsInstance {
 	
@@ -48,8 +50,8 @@ public class AdsInstance {
 		this.barTextString = barTextString;
 	}
 	
-	public AdsInstance() {
-		
+	public boolean hasTextBar() {
+		return (!TextUtils.isEmpty(barTextString));
 	}
 
 	@Override
