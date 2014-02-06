@@ -90,8 +90,7 @@ public class AdsUpdateScheduler extends AbstractScheduler implements
 	private String getUrlString() {
 
 		// TODO: implement getting of correct url
-//		return "http://iphonepackers.info/bannerad.xml";
-		return UrlManager.getUrl(1);
+		return UrlManager.getBannerPtUrl(1);
 	}
 
 	@Override
