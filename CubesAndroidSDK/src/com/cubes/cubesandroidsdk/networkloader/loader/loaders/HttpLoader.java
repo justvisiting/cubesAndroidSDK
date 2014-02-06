@@ -27,6 +27,7 @@ public class HttpLoader implements INetworkLoader {
 	private AbstractParser parser;
 	private static final String SCHEME_HTTP = "http";
 	private static final String SCHEME_HTTPS = "https";
+	private static final int CONNECTION_TIMEOUT_MILLIS = 30000;
 
 	public HttpLoader() {
 
@@ -106,6 +107,7 @@ public class HttpLoader implements INetworkLoader {
 			connection.setRequestProperty("Connection", "Keep-Alive");
 		}
 		connection.setRequestProperty("Charset", "UTF-8");
+		connection.setConnectTimeout(CONNECTION_TIMEOUT_MILLIS);
 	}
 
 	private void setPostParameters(HttpURLConnection connection,
@@ -125,6 +127,7 @@ public class HttpLoader implements INetworkLoader {
 					"multipart/form-data;boundary="
 							+ request.getContentDelimiter());
 		}
+		connection.setConnectTimeout(CONNECTION_TIMEOUT_MILLIS);
 	}
 
 	private HttpURLConnection openConnection(URL url) throws Exception {
