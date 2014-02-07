@@ -11,6 +11,15 @@ public class AdsInstance {
 	private String bannerUriString;
 	private String barUriString;
 	private String barTextString;
+	private boolean isExpandable;
+
+	public boolean isExpandable() {
+		return isExpandable;
+	}
+
+	public void setExpandable(boolean isExpandable) {
+		this.isExpandable = isExpandable;
+	}
 
 	public String getBarUriString() {
 		return barUriString;
