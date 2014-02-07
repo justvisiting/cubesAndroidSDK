@@ -23,6 +23,10 @@ public class AdsInstance {
 	public void setBarUriString(String barUriString) {
 		this.barUriString = barUriString;
 	}
+	
+	public void setBannerUriString(String uri) {
+		bannerUriString = uri;
+	}
 
 	public int getAdsType() {
 		return adsType;
