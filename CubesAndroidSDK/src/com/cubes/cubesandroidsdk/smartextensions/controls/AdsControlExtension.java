@@ -18,7 +18,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.cubes.cubesandroidsdk.R;
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
 import com.cubes.cubesandroidsdk.adsmanager.AdsType;
 import com.cubes.cubesandroidsdk.adsmanager.ClickReceiver;
@@ -204,7 +203,8 @@ public class AdsControlExtension extends ControlExtension implements
 	private Bitmap makeEmptyAd(Bitmap bitmap) {
 		
 
-		return ExtensionDrawingHelper.setTextIntoBitmap(mContext, bitmap, mContext.getString(R.string.ads_empty_banner_text), width, height);
+//		return ExtensionDrawingHelper.setTextIntoBitmap(mContext, bitmap, mContext.getString(R.string.ads_empty_banner_text), width, height);
+		return bitmap;
 	}
 	
 	private void drawAdsInstance(AdsInstance instance) {
