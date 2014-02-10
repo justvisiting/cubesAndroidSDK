@@ -7,8 +7,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.cubes.cubesandroidsdk.adsmanager.AdsType;
-import com.cubes.cubesandroidsdk.adsmanager.ClickAdsAction;
+import com.cubes.cubesandroidsdk.config.AdsType;
+import com.cubes.cubesandroidsdk.config.ClickAdsAction;
 
 /*
  * 

@@ -1,4 +1,4 @@
-package com.cubes.cubesandroidsdk.adsmanager;
+package com.cubes.cubesandroidsdk.config;
 
 /**
  * Global class for configuration of ads SDK.

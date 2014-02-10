@@ -1,5 +1,8 @@
 package com.cubes.cubesandroidsdk.adsmanager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.text.TextUtils;
 
 
@@ -8,10 +11,10 @@ public class AdsInstance {
 	private int adsType;
 	private int clickAction;
 	private String clickData;
-	private String bannerUriString;
 	private String barUriString;
 	private String barTextString;
 	private boolean isExpandable;
+	private List<String> fullscreenAdsList;
 
 	public boolean isExpandable() {
 		return isExpandable;
@@ -33,8 +36,12 @@ public class AdsInstance {
 		this.barUriString = barUriString;
 	}
 	
-	public void setBannerUriString(String uri) {
-		bannerUriString = uri;
+	public List<String> getFullscreenAds() {
+		return fullscreenAdsList;
+	}
+	
+	public void setFullscreenAds(List<String> list) {
+		fullscreenAdsList = list;
 	}
 
 	public int getAdsType() {
@@ -49,18 +56,15 @@ public class AdsInstance {
 		return clickData;
 	}
 
-	public String getBannerUriString() {
-		return bannerUriString;
-	}
 	
 	public AdsInstance(int adsType, int clickAction, String clickData,
-			String bannerUriStrig, String barUriString, String barTextString) {
+			List<String> fullscreenAdsList, String barUriString, String barTextString) {
 		this.adsType = adsType;
 		this.clickAction = clickAction;
 		this.clickData = clickData;
-		this.bannerUriString = bannerUriStrig;
 		this.barUriString = barUriString;
 		this.barTextString = barTextString;
+		this.fullscreenAdsList = new ArrayList<String>();
 	}
 	
 	public boolean hasTextBar() {

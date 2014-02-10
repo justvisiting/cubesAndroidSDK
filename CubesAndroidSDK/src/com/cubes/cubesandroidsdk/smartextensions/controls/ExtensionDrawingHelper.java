@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cubes.cubesandroidsdk.R;
-import com.cubes.cubesandroidsdk.adsmanager.AdsType;
+import com.cubes.cubesandroidsdk.config.AdsType;
 
 /**
  * Helper class for drawing {@link AdsControlExtension}

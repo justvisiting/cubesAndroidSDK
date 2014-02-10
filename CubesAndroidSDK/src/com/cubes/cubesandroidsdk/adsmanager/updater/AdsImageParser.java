@@ -1,4 +1,4 @@
-package com.cubes.cubesandroidsdk.adsmanager;
+package com.cubes.cubesandroidsdk.adsmanager.updater;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,6 +7,7 @@ import java.io.OutputStream;
 
 import android.net.Uri;
 
+import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.AbstractParser;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.IResponse;
 

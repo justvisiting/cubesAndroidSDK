@@ -1,4 +1,4 @@
-package com.cubes.cubesandroidsdk.adsmanager;
+package com.cubes.cubesandroidsdk.adsmanager.updater;
 
 import java.io.InputStream;
 

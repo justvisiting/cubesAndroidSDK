@@ -4,6 +4,11 @@ import java.util.Stack;
 
 import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
 
+/**
+ * Custom stack for restoring {@link ControlExtension} object after viewing full-screen ads 
+ * @author makarenko.s
+ *
+ */
 public class ControlsManager {
 
 	public static ControlsManager instance;

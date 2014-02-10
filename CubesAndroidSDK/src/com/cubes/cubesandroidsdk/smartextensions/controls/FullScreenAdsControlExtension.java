@@ -43,7 +43,7 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 					R.id.ads_full_screen_container,
 					MediaStore.Images.Media.getBitmap(
 							mContext.getContentResolver(),
-							Uri.parse(instance.getBannerUriString())));
+							Uri.parse(instance.getFullscreenAds().get(0))));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -1,5 +1,6 @@
 package com.cubes.cubesandroidsdk.smartextensions.controls;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Service;
@@ -20,9 +21,9 @@ import android.widget.ImageView;
 
 import com.cubes.cubesandroidsdk.R;
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
-import com.cubes.cubesandroidsdk.adsmanager.AdsType;
 import com.cubes.cubesandroidsdk.adsmanager.ClickReceiver;
-import com.cubes.cubesandroidsdk.adsmanager.Configuration;
+import com.cubes.cubesandroidsdk.config.AdsType;
+import com.cubes.cubesandroidsdk.config.Configuration;
 import com.cubes.cubesandroidsdk.schedulers.AbstractScheduler;
 import com.cubes.cubesandroidsdk.schedulers.AdsShowingScheduler;
 import com.cubes.cubesandroidsdk.schedulers.AdsShowingScheduler.IAdsChanger;
@@ -186,9 +187,9 @@ public class AdsControlExtension extends ControlExtension implements
 			if (instance.isExpandable()) {
 
 				// TODO: debug section
-				adsList.get(getCounter()).setBannerUriString(
-						ExtensionUtils.getUriString(mContext,
-								R.drawable.interst1));
+				List<String> ads = new ArrayList<String>();
+				ads.add(ExtensionUtils.getUriString(mContext, R.drawable.interst1));
+				adsList.get(getCounter()).setFullscreenAds(ads);
 				ControlsManager.getInstance().putToStack(this);
 				fullScreenControl.showInstance(adsList.get(getCounter()));
 			} else {

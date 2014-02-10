@@ -1,5 +1,6 @@
-package com.cubes.cubesandroidsdk.adsmanager;
+package com.cubes.cubesandroidsdk.adsmanager.updater;
 
+import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
 import com.cubes.cubesandroidsdk.utils.AdXmlElements;
 
 public class Utils {

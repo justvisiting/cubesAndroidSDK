@@ -1,5 +1,7 @@
 package com.cubes.cubesandroidsdk.adsmanager;
 
+import com.cubes.cubesandroidsdk.config.ClickAdsAction;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

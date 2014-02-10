@@ -6,8 +6,9 @@ import java.util.List;
 import android.content.Context;
 import android.content.Intent;
 
+import com.cubes.cubesandroidsdk.adsmanager.updater.AdsUpdater.IAdsUpdateCallback;
+import com.cubes.cubesandroidsdk.config.Configuration;
 import com.cubes.cubesandroidsdk.schedulers.AdsUpdateScheduler;
-import com.cubes.cubesandroidsdk.schedulers.AdsUpdateScheduler.IAdsUpdateCallback;
 import com.testflightapp.lib.TestFlight;
 
 /**
