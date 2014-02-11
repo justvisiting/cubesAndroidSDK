@@ -29,6 +29,7 @@ import com.cubes.cubesandroidsdk.service.AdsManagerService;
 import com.cubes.cubesandroidsdk.service.AdsManagerService.AdsManagerServiceBinder;
 import com.sonyericsson.extras.liveware.aef.control.Control;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
+import com.sonyericsson.extras.liveware.extension.util.control.ControlListItem;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlObjectClickEvent;
 import com.testflightapp.lib.TestFlight;
 
@@ -50,7 +51,7 @@ public class AdsControlExtension extends ControlExtension implements
 	private List<AdsInstance> adsList;
 
 	private FullScreenAdsControlExtension fullScreenControl;
-
+	
 	public AdsControlExtension(Context context, String hostAppPackageName) {
 		super(context, hostAppPackageName);
 		width = ExtensionDrawingHelper.getBarWidth(context);
@@ -82,8 +83,8 @@ public class AdsControlExtension extends ControlExtension implements
 							"loaded ads list with size - " + adsList.size());
 					TestFlight.passCheckpoint("loaded ads list with size - "
 							+ adsList.size());
-					moveCounter();
 					drawAdsInstance(adsList.get(getCounter()));
+					moveCounter();
 				} else {
 					drawBitmap(makeEmptyAd(getDrawingArea()));
 				}
@@ -95,7 +96,9 @@ public class AdsControlExtension extends ControlExtension implements
 	}
 
 	private void unregisterLoaderCallback() {
-		mContext.unregisterReceiver(loaderCallback);
+		if(loaderCallback != null) {
+			mContext.unregisterReceiver(loaderCallback);
+		}
 	}
 
 	private ServiceConnection prepareServiceConnection() {
@@ -130,8 +133,14 @@ public class AdsControlExtension extends ControlExtension implements
 	protected void showAdsBar(int containerImgId) {
 
 		this.containerImgId = containerImgId;
+		
+		if(adsList != null && !adsList.isEmpty()) {
+			drawAdsInstance(adsList.get(getCounter()));
+		} else {
+			drawBitmap(makeEmptyAd(getDrawingArea()));
+		}
 		scheduler.start();
-		drawBitmap(makeEmptyAd(getDrawingArea()));
+
 		TestFlight.log("ShowAdsBar invoked");
 	}
 
@@ -150,7 +159,7 @@ public class AdsControlExtension extends ControlExtension implements
 			registerLoaderCallback();
 		}
 	}
-
+	
 	@Override
 	public void onStop() {
 		super.onStop();
@@ -163,7 +172,6 @@ public class AdsControlExtension extends ControlExtension implements
 
 		scheduler.dispose();
 		mBackground.recycle();
-		
 		mContext.unbindService(adsServiceConnection);
 		Log.v("SDK", "View - ondestroy");
 		super.onDestroy();
@@ -178,14 +186,29 @@ public class AdsControlExtension extends ControlExtension implements
 			performBarClick();
 		}
 	}
+	
+	@Override
+	public void onListItemClick(ControlListItem listItem, int clickType,
+			int itemLayoutReference) {
+		fullScreenControl.onListItemClick(listItem, clickType, itemLayoutReference);
+	}
+	
+	@Override
+	public void onListItemSelected(ControlListItem listItem) {
+		fullScreenControl.onListItemSelected(listItem);
+	}
 
 	private void performBarClick() {
 
 		if (adsList != null && !adsList.isEmpty()) {
 			AdsInstance instance = adsList.get(getCounter());
 			if (instance.isExpandable()) {
-				ControlsManager.getInstance().putToStack(this);
-				fullScreenControl.showInstance(adsList.get(getCounter()));
+//				ControlsManager.getInstance().putToStack(this);
+				//XXX: have not full implemented
+//				fullScreenControl.showInstance(adsList.get(getCounter()));
+//				fullScreenControl.onStart();
+//				fullScreenControl.onResume();
+				
 			} else {
 				mContext.sendBroadcast(new Intent(
 						Configuration.ACTION_CLICK_ADS_EVENT).putExtra(
@@ -196,13 +219,30 @@ public class AdsControlExtension extends ControlExtension implements
 			}
 		}
 	}
-
+	
+	@Override
+	public void onRequestListItem(int layoutReference, int listItemPosition) {
+		super.onRequestListItem(layoutReference, listItemPosition);
+		
+		fullScreenControl.onRequestListItem(layoutReference, listItemPosition);
+	}
+	
 	@Override
 	public void onKey(int action, int keyCode, long timeStamp) {
 
+		if(fullScreenControl.isStarted()) {
+			fullScreenControl.onKey(action, keyCode, timeStamp);
+			return;
+		}
+		
 		if (action == Control.Intents.KEY_ACTION_PRESS
 				&& keyCode == Control.KeyCodes.KEYCODE_BACK) {
-			// TODO: Perform correct end of fullscreen
+
+			if(fullScreenControl.isStarted()) {
+				fullScreenControl.onPause();
+				fullScreenControl.onStop();
+				
+			}
 			if (!ControlsManager.getInstance().restore()) {
 				super.onKey(action, keyCode, timeStamp);
 			}

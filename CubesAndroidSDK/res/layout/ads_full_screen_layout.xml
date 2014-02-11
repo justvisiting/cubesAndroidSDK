@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/smart_watch_2_control_width"
+    android:layout_height="@dimen/smart_watch_2_control_height"
+    android:orientation="vertical" >
+
+    <Gallery
+        android:id="@+id/ads_fullscreen_gallery"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+    </Gallery>
+
+</LinearLayout>

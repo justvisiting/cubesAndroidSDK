@@ -1,21 +1,16 @@
 package com.cubes.cubesandroidsdk.smartextensions.controls;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
-import android.net.Uri;
-import android.provider.MediaStore;
+import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
 import com.cubes.cubesandroidsdk.R;
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
 import com.sonyericsson.extras.liveware.aef.control.Control;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
-import com.sonyericsson.extras.liveware.extension.util.control.ControlObjectClickEvent;
+import com.sonyericsson.extras.liveware.extension.util.control.ControlListItem;
 
 public class FullScreenAdsControlExtension extends ControlExtension {
 
@@ -24,6 +19,7 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 	private int height;
 	private Bitmap mBackground;
 	private AdsInstance instance;
+	private boolean isStarted;
 
 	public FullScreenAdsControlExtension(Context context,
 			String hostAppPackageName) {
@@ -33,45 +29,77 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 		mBackground = Bitmap.createBitmap(width, height, BITMAP_CONFIG);
 		mBackground.setDensity(DisplayMetrics.DENSITY_DEFAULT);
 	}
+	
+	public boolean isStarted() {
+		
+		return isStarted;
+	}
+	
+	@Override
+	public void onStart() {
+		
+		super.onStart();
+		showLayout(R.layout.ads_full_screen_layout, null);
+		sendListCount(R.id.ads_fullscreen_gallery, instance.getFullscreenAds().size());
+		sendListPosition(R.id.ads_fullscreen_gallery, 0);
+		isStarted = true;
+	}
+	
+	@Override
+	public void onStop() {
+
+		isStarted = false;
+		super.onStop();
+	}
+	
+	@Override
+	public void onRequestListItem(int layoutReference, int listItemPosition) {
+		super.onRequestListItem(layoutReference, listItemPosition);
+		
+		if (layoutReference != -1 && listItemPosition != -1 && layoutReference == R.id.ads_fullscreen_gallery) {
+            ControlListItem item = createControlListItem(listItemPosition);
+            if (item != null) {
+                sendListItem(item);
+            }
+        }
+	}
+	
+	@Override
+	public void onListItemClick(ControlListItem listItem, int clickType,
+			int itemLayoutReference) {
+		super.onListItemClick(listItem, clickType, itemLayoutReference);
+	}
+	
+	@Override
+	public void onListItemSelected(ControlListItem listItem) {
+		super.onListItemSelected(listItem);
+	}
+	
+	private ControlListItem createControlListItem(int position) {
+
+        ControlListItem item = new ControlListItem();
+        item.layoutReference = R.id.ads_fullscreen_gallery;
+        item.dataXmlLayout = R.layout.ads_full_screen;
+        item.listItemId = position;
+        item.listItemPosition = position;
+
+        Bundle contentBundle = new Bundle();
+        contentBundle.putInt(Control.Intents.EXTRA_LAYOUT_REFERENCE, R.id.ads_full_screen_container);
+        contentBundle.putString(Control.Intents.EXTRA_DATA_URI, instance.getFullscreenAds().get(position));
+
+        item.layoutData = new Bundle[1];
+        item.layoutData[0] = contentBundle;
+
+        return item;
+    }
 
 	public void showInstance(AdsInstance instance) {
 
 		this.instance = instance;
-		showLayout(R.layout.ads_full_screen, null);
-		try {
-			sendImage(
-					R.id.ads_full_screen_container,
-					MediaStore.Images.Media.getBitmap(
-							mContext.getContentResolver(),
-							Uri.parse(instance.getFullscreenAds().get(0))));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		start();
-	}
-
-	@Override
-	public void onObjectClick(ControlObjectClickEvent event) {
-		super.onObjectClick(event);
-		if (event.getLayoutReference() == R.id.ads_full_screen_container) {
-			// TODO:perform click event
-		}
 	}
 
 	@Override
 	public void onKey(int action, int keyCode, long timeStamp) {
-		Log.v("SDK", "Ads full - on key");
-		if (action == Control.Intents.KEY_ACTION_RELEASE
-				&& keyCode == Control.KeyCodes.KEYCODE_BACK) {
 
-			stop();
-			destroy();
-		} else {
-			super.onKey(action, keyCode, timeStamp);
-		}
 	}
 }
