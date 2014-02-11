@@ -1,12 +1,12 @@
 package com.cubes.cubesandroidsdk.adsmanager;
 
-import com.cubes.cubesandroidsdk.config.ClickAdsAction;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.webkit.URLUtil;
+
+import com.cubes.cubesandroidsdk.config.ClickAdsAction;
 
 /**
  * Handle events of click on ads and perform appropriate action
@@ -29,16 +29,16 @@ public class ClickReceiver extends BroadcastReceiver {
 				openBrowser(context, intent.getStringExtra(INTENT_CLICK_DATA));
 				break;
 			case ClickAdsAction.CALL_ME_ACTION:
-				performCall(context, intent.getStringExtra(INTENT_CLICK_DATA));
+				openBrowser(context, intent.getStringExtra(INTENT_CLICK_DATA));
 				break;
 			case ClickAdsAction.INITIATE_BUY_ACTION:
-				initiateBuy();
+				openBrowser(context, intent.getStringExtra(INTENT_CLICK_DATA));
 				break;
 			case ClickAdsAction.INITIATE_PHONE_CALL_ACTION:
-				initiateCall();
+				openBrowser(context, intent.getStringExtra(INTENT_CLICK_DATA));
 				break;
 			case ClickAdsAction.PLAY_STORE_ACTION:
-				openPlayStore(intent.getStringExtra(INTENT_CLICK_DATA));
+				openBrowser(context, intent.getStringExtra(INTENT_CLICK_DATA));
 				break;
 			}
 		}
