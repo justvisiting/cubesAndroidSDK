@@ -85,8 +85,13 @@ public class ResponseParser extends DefaultHandler {
 		} else if (localName.equalsIgnoreCase("clickType")) {
 			
 //			ClickType clickType = ClickType.valueOf(builder.toString());
-			if(builder.toString().equalsIgnoreCase("Browse")) {
+			String clickType = builder.toString();
+			if(clickType.equalsIgnoreCase("Browse")) {
 				xml.set_clickType(ClickAdsAction.BROWSER_ACTION);
+			} else if(clickType.equalsIgnoreCase("PlayStore")) {
+				xml.set_clickType(ClickAdsAction.PLAY_STORE_ACTION);
+			} else if(clickType.equalsIgnoreCase("Call")) {
+				xml.set_clickType(ClickAdsAction.INITIATE_PHONE_CALL_ACTION);
 			}
 			
 		} else if (localName.equalsIgnoreCase("clickUrl")) {
@@ -97,6 +102,8 @@ public class ResponseParser extends DefaultHandler {
 
 			if (builder.toString().equalsIgnoreCase("BannerAd")) {
 				xml.set_adType(AdsType.MULTIPART);
+			} else if(builder.toString().equalsIgnoreCase("MultiPartLogoAd")) {
+				xml.set_adType(AdsType.MULTIPART_LOGO);
 			}
 
 		}

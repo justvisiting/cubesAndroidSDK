@@ -1,6 +1,5 @@
 package com.cubes.cubesandroidsdk.smartextensions.controls;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Service;
@@ -19,7 +18,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.cubes.cubesandroidsdk.R;
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
 import com.cubes.cubesandroidsdk.adsmanager.ClickReceiver;
 import com.cubes.cubesandroidsdk.config.AdsType;
@@ -30,7 +28,6 @@ import com.cubes.cubesandroidsdk.schedulers.AdsShowingScheduler.IAdsChanger;
 import com.cubes.cubesandroidsdk.service.AdsManagerService;
 import com.cubes.cubesandroidsdk.service.AdsManagerService.AdsManagerServiceBinder;
 import com.sonyericsson.extras.liveware.aef.control.Control;
-import com.sonyericsson.extras.liveware.extension.util.ExtensionUtils;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlObjectClickEvent;
 import com.testflightapp.lib.TestFlight;
@@ -150,6 +147,7 @@ public class AdsControlExtension extends ControlExtension implements
 		if (containerImgId != 0) {
 			drawBitmap(makeEmptyAd(getDrawingArea()));
 			scheduler.start();
+			registerLoaderCallback();
 		}
 	}
 
@@ -157,6 +155,7 @@ public class AdsControlExtension extends ControlExtension implements
 	public void onStop() {
 		super.onStop();
 		scheduler.stop();
+		unregisterLoaderCallback();
 	}
 
 	@Override
@@ -164,7 +163,7 @@ public class AdsControlExtension extends ControlExtension implements
 
 		scheduler.dispose();
 		mBackground.recycle();
-		unregisterLoaderCallback();
+		
 		mContext.unbindService(adsServiceConnection);
 		Log.v("SDK", "View - ondestroy");
 		super.onDestroy();
@@ -185,11 +184,6 @@ public class AdsControlExtension extends ControlExtension implements
 		if (adsList != null && !adsList.isEmpty()) {
 			AdsInstance instance = adsList.get(getCounter());
 			if (instance.isExpandable()) {
-
-				// TODO: debug section
-				List<String> ads = new ArrayList<String>();
-				ads.add(ExtensionUtils.getUriString(mContext, R.drawable.interst1));
-				adsList.get(getCounter()).setFullscreenAds(ads);
 				ControlsManager.getInstance().putToStack(this);
 				fullScreenControl.showInstance(adsList.get(getCounter()));
 			} else {
@@ -272,6 +266,21 @@ public class AdsControlExtension extends ControlExtension implements
 			break;
 		case AdsType.INTERSTITIAL:
 			// TODO: Not implemented yet
+			break;
+		case AdsType.MULTIPART_LOGO:
+			if (instance.hasTextBar()) {
+				drawBitmap(makeTextAd(getDrawingArea(),
+						instance.getBarTextString()));
+			} else {
+				try {
+					drawBitmap(MediaStore.Images.Media.getBitmap(
+							mContext.getContentResolver(),
+							Uri.parse(instance.getBarUriString())));
+				} catch (Exception e) {
+					e.printStackTrace();
+					drawBitmap(makeEmptyAd(getDrawingArea()));
+				}
+			}
 			break;
 		}
 	}
