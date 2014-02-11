@@ -1,6 +1,7 @@
 package com.cubes.cubesandroidsdk.adsmanager.updater;
 
 import java.io.InputStream;
+import java.util.List;
 
 import javax.xml.parsers.SAXParserFactory;
 
@@ -16,8 +17,16 @@ public class AdsXmlParser extends AbstractParser {
 
 	@Override
 	public IResponse parse(InputStream stream, IResponse response) {
-		AdXmlElements elements = getElements(stream);
-		response.setData(elements);
+		AdsRequest request = (AdsRequest) response.getData();
+		AdXmlElements xml = getElements(stream);
+		request.setInstance(Utils.convertXmlToAdsInstance(xml));
+		request.setbarUrl(xml.get_bannerUrl());
+		List<String> urls = xml.getExpandedUrl();
+		if(urls != null	&& !urls.isEmpty()) {
+			request.setFullscreenUrls(urls);
+		}
+		request.setStatus(AdsRequest.STATUS_FINISHED);
+		response.setData(request);
 		return response;
 	}
 	

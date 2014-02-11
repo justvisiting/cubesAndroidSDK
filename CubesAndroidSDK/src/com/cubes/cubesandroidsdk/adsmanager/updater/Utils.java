@@ -7,7 +7,7 @@ public class Utils {
 	
 	public static AdsInstance convertXmlToAdsInstance(AdXmlElements xml) {
 		
-		return new AdsInstance(xml.get_adType(), xml.get_clickType(), xml.get_clickUrl(), null, null, null);
+		return new AdsInstance(xml.get_adType(), xml.get_clickType(), xml.get_clickUrl(), null, null);
 		
 	}
 }

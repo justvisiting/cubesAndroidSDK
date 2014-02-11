@@ -7,7 +7,6 @@ import java.io.OutputStream;
 
 import android.net.Uri;
 
-import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.AbstractParser;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.IResponse;
 
@@ -41,10 +40,16 @@ public class AdsImageParser extends AbstractParser {
 			}
 			output.flush();
 			output.close();
-			final AdsInstance adsInstance = (AdsInstance) response.getData();
-			adsInstance.setBarUriString(Uri.fromFile(file).toString());
-			response.setData(adsInstance);
 			
+			final AdsRequest request = (AdsRequest) response.getData();
+			if(request.getRequestType() == AdsRequest.TYPE_IMAGE_BAR) {
+				request.getInstance().setBarUriString(Uri.fromFile(file).toString());
+				request.setStatus(AdsRequest.STATUS_FINISHED);
+				
+			} else if(request.getRequestType() == AdsRequest.TYPE_IMAGE_FULLSCREEN) {
+				request.getInstance().getFullscreenAds().add(Uri.fromFile(file).toString());
+			}
+			response.setData(request);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

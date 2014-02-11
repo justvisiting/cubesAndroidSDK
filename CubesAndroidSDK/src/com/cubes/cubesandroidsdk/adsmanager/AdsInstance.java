@@ -13,15 +13,10 @@ public class AdsInstance {
 	private String clickData;
 	private String barUriString;
 	private String barTextString;
-	private boolean isExpandable;
 	private List<String> fullscreenAdsList;
 
 	public boolean isExpandable() {
-		return isExpandable;
-	}
-
-	public void setExpandable(boolean isExpandable) {
-		this.isExpandable = isExpandable;
+		return fullscreenAdsList != null && !fullscreenAdsList.isEmpty();
 	}
 
 	public String getBarUriString() {
@@ -58,7 +53,7 @@ public class AdsInstance {
 
 	
 	public AdsInstance(int adsType, int clickAction, String clickData,
-			List<String> fullscreenAdsList, String barUriString, String barTextString) {
+			 String barUriString, String barTextString) {
 		this.adsType = adsType;
 		this.clickAction = clickAction;
 		this.clickData = clickData;
