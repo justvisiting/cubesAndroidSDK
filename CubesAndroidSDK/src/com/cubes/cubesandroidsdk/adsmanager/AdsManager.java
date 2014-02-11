@@ -38,7 +38,7 @@ public class AdsManager implements IAdsUpdateCallback {
 	}
 
 	@Override
-	public void onAdsUpdate(List<AdsInstance> newAdsList) {
+	public void onAdsUpdated(List<AdsInstance> newAdsList) {
 		if(newAdsList != null && !newAdsList.isEmpty()) {
 			adsList.clear();
 			adsList.addAll(newAdsList);
@@ -50,5 +50,11 @@ public class AdsManager implements IAdsUpdateCallback {
 	public void dispose() {
 		updateScheduler.stop();
 		updateScheduler.dispose();
+	}
+
+	@Override
+	public void onStartUpdate() {
+
+		context.removeStickyBroadcast(new Intent(Configuration.ACTION_SEND_LOADER_CALLBACK));
 	}
 }

@@ -18,7 +18,6 @@ import com.cubes.cubesandroidsdk.networkloader.loader.responses.AbstractParser;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.HttpResponse;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.IClientCallback;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.IResponse;
-import com.cubes.cubesandroidsdk.utils.UrlManager;
 import com.testflightapp.lib.TestFlight;
 
 /**
@@ -49,6 +48,9 @@ public class AdsUpdater implements IClientCallback {
 	 */
 	public void loadAd() {
 
+		if(callback != null) {
+			callback.onStartUpdate();
+		}
 		loadXmlAds();
 	}
 
@@ -61,8 +63,8 @@ public class AdsUpdater implements IClientCallback {
 				executeRequest(prepareRequest(url, request), new AdsXmlParser());
 				adsMustBeLoaded++;
 			}
-			Log.v("SDK", "start load xml");
-			TestFlight.passCheckpoint("Start load XML");
+			Log.v("sdk_updater", "start load xml");
+			TestFlight.passCheckpoint("Start load XMLs");
 		} catch (MalformedURLException e) {
 			// TODO: delivering error message
 			e.printStackTrace();
@@ -72,7 +74,7 @@ public class AdsUpdater implements IClientCallback {
 	private void loadImageAds(String url, AdsRequest request) {
 
 		try {
-			Log.v("SDK", "start load image");
+			Log.v("sdk_updater", "start load image");
 			TestFlight.passCheckpoint("start load image");
 			executeRequest(prepareRequest(url, request), new AdsImageParser(
 					context.getExternalCacheDir().getAbsolutePath()));
@@ -84,7 +86,9 @@ public class AdsUpdater implements IClientCallback {
 	private String[] getUrlsArray() {
 
 		// TODO: implement getting of correct url
-		return new String[] { UrlManager.getLogoPtUrl(2), UrlManager.getBannerPtUrl(2) };
+		return new String[] {"http://iphonepackers.info/bannerad.xml"
+				,"http://iphonepackers.info/bannerad2.xml", "http://iphonepackers.info/MultiPartLogoAd.xml"
+			};//{ UrlManager.getLogoPtUrl(2), UrlManager.getBannerPtUrl(2) };
 	}
 
 	public void dispose() {
@@ -100,7 +104,7 @@ public class AdsUpdater implements IClientCallback {
 
 			if (adsRequest.getRequestType() == AdsRequest.TYPE_XML
 					&& adsRequest.getStatus() == AdsRequest.STATUS_FINISHED) {
-				Log.v("SDK", "xml loaded");
+				Log.v("sdk_updater", "xml loaded");
 				TestFlight.passCheckpoint("xml loaded");
 				if (adsRequest.hasBarUrl()) {
 					loadBarImage(adsRequest);
@@ -119,7 +123,7 @@ public class AdsUpdater implements IClientCallback {
 				}
 			} else if (adsRequest.getRequestType() == AdsRequest.TYPE_IMAGE_FULLSCREEN) {
 				TestFlight.passCheckpoint("image loaded");
-				Log.v("SDK", "image loaded");
+				Log.v("sdk_updater", "image loaded");
 
 				if (adsRequest.hasMoreUrls()) {
 					loadFullScreenImage(adsRequest);
@@ -146,11 +150,11 @@ public class AdsUpdater implements IClientCallback {
 
 	private void putInstanceIntoList(AdsInstance instance) {
 		if (!adsList.contains(instance)) {
-			TestFlight.passCheckpoint("send result to back");
-			Log.v("SDK", "send result to back");
 			adsList.add(instance);
 			processedAdsCount++;
 			if(adsMustBeLoaded == processedAdsCount) {
+				TestFlight.passCheckpoint("send result to back");
+				Log.v("sdk_updater", "send result to back");
 				deliveryResult();
 			}
 		}
@@ -158,7 +162,7 @@ public class AdsUpdater implements IClientCallback {
 	
 	private void deliveryResult() {
 		if (callback != null) {
-			callback.onAdsUpdate(adsList);
+			callback.onAdsUpdated(adsList);
 		}
 		adsMustBeLoaded = 0;
 		processedAdsCount = 0;
@@ -185,6 +189,7 @@ public class AdsUpdater implements IClientCallback {
 	 */
 	public interface IAdsUpdateCallback {
 
-		void onAdsUpdate(List<AdsInstance> newAdsList);
+		void onAdsUpdated(List<AdsInstance> newAdsList);
+		void onStartUpdate();
 	}
 }
