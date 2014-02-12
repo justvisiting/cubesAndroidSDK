@@ -20,7 +20,16 @@ public class AdsRequest {
 	private AdsInstance instance;
 	private Deque<String> fullscreenUrlQueue;
 	private String barUrl;
+	private String xmlUrl;
 	
+	public String getXmlUrl() {
+		return xmlUrl;
+	}
+
+	public void setXmlUrl(String xmlUrl) {
+		this.xmlUrl = xmlUrl;
+	}
+
 	public static final int STATUS_PROGRESS = 300;
 	public static final int STATUS_FINISHED = 301;
 	
