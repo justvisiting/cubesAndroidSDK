@@ -51,6 +51,9 @@ public class AdsUpdater implements IClientCallback {
 	 */
 	public void loadAd() {
 
+		if(!LoaderManager.isNetworkAvailable(context)) {
+			return;
+		}
 		if (callback != null) {
 			callback.onStartUpdate();
 		}
@@ -59,7 +62,7 @@ public class AdsUpdater implements IClientCallback {
 
 	private void loadXmlAds() {
 			for (String url : getUrlsArray()) {
-				AdsRequest request = new AdsRequest();
+				final AdsRequest request = new AdsRequest();
 				request.setRequestType(AdsRequest.TYPE_XML);
 				request.setStatus(AdsRequest.STATUS_PROGRESS);
 				request.setXmlUrl(url);
@@ -73,7 +76,7 @@ public class AdsUpdater implements IClientCallback {
 	
 	private boolean executeNextRequest() {
 		
-		AdsRequest request = requestsQueue.poll();
+		final AdsRequest request = requestsQueue.poll();
 		if (request != null) {
 			try {
 				executeRequest(prepareRequest(request.getXmlUrl(), request),
@@ -122,12 +125,13 @@ public class AdsUpdater implements IClientCallback {
 	public void onRequestFinished(int resultCode, IResponse response) {
 
 		if (resultCode == ResultCode.RESULT_SUCCESSFULL) {
-			AdsRequest adsRequest = (AdsRequest) response.getData();
+			final AdsRequest adsRequest = (AdsRequest) response.getData();
 
 			if (adsRequest.getRequestType() == AdsRequest.TYPE_XML
 					&& adsRequest.getStatus() == AdsRequest.STATUS_FINISHED) {
 				Log.v("sdk_updater", "xml loaded");
 				TestFlight.passCheckpoint("xml loaded");
+				
 				if (adsRequest.hasBarUrl()) {
 					loadBarImage(adsRequest);
 				} else if (adsRequest.hasMoreUrls()) {
@@ -179,6 +183,7 @@ public class AdsUpdater implements IClientCallback {
 		}
 		if (!executeNextRequest()) {
 			deliveryResult();
+			
 			TestFlight.passCheckpoint("send result to back");
 			Log.v("sdk_updater", "send result to back");
 		}
@@ -186,6 +191,7 @@ public class AdsUpdater implements IClientCallback {
 	}
 
 	private void deliveryResult() {
+		
 		if (callback != null) {
 			callback.onAdsUpdated(adsList);
 		}
@@ -194,11 +200,11 @@ public class AdsUpdater implements IClientCallback {
 	private HttpRequest prepareRequest(String urlString, AdsRequest request)
 			throws MalformedURLException {
 
-		HttpGetRequest getRequest = new HttpGetRequest(new URL(urlString));
-		HttpResponse response = new HttpResponse();
+		final HttpGetRequest networkRequest = new HttpGetRequest(new URL(urlString));
+		final HttpResponse response = new HttpResponse();
 		response.setData(request);
-		getRequest.setResponse(response);
-		return getRequest;
+		networkRequest.setResponse(response);
+		return networkRequest;
 	}
 
 	private void executeRequest(IRequest<?> request, AbstractParser parser) {

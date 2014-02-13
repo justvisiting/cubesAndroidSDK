@@ -3,6 +3,9 @@ package com.cubes.cubesandroidsdk.networkloader.loader;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 
 import com.cubes.cubesandroidsdk.networkloader.loader.asyncexecution.AsyncTaskExecutor;
@@ -27,6 +30,17 @@ public class LoaderManager implements IExecutionCallback {
 		requestsQueue = new ArrayDeque<INetworkLoader>();
 		asyncExecutor = new AsyncTaskExecutor();
 		resultHandler = new ResultHandler(this);
+	}
+	
+	/**
+	 * Check if network connection available
+	 * @param context
+	 * @return true if connection is available, false otherwise
+	 */
+	public static boolean isNetworkAvailable(Context context) {
+
+		final NetworkInfo activeNetworkInfo = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 	
 	/**
