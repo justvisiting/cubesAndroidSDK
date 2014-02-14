@@ -49,6 +49,8 @@ public class AdsControlExtension extends ControlExtension implements
 	private BroadcastReceiver loaderCallback;
 
 	private List<AdsInstance> adsList;
+	
+	private boolean mustInterceptActions;
 
 	private FullScreenAdsControlExtension fullScreenControl;
 	
@@ -64,6 +66,11 @@ public class AdsControlExtension extends ControlExtension implements
 		fullScreenControl = new FullScreenAdsControlExtension(context,
 				hostAppPackageName);
 		bindToService();
+	}
+	
+	public boolean mustInterceptActions() {
+		
+		return mustInterceptActions;
 	}
 
 	private void registerLoaderCallback() {
@@ -190,24 +197,28 @@ public class AdsControlExtension extends ControlExtension implements
 	@Override
 	public void onListItemClick(ControlListItem listItem, int clickType,
 			int itemLayoutReference) {
-		fullScreenControl.onListItemClick(listItem, clickType, itemLayoutReference);
+		if(fullScreenControl.isStarted()) {
+			fullScreenControl.onListItemClick(listItem, clickType, itemLayoutReference);
+		}
 	}
 	
 	@Override
 	public void onListItemSelected(ControlListItem listItem) {
-		fullScreenControl.onListItemSelected(listItem);
+		if(fullScreenControl.isStarted()) {
+			fullScreenControl.onListItemSelected(listItem);
+		}
 	}
 
 	private void performBarClick() {
 
 		if (adsList != null && !adsList.isEmpty()) {
-			AdsInstance instance = adsList.get(getCounter());
+			final AdsInstance instance = adsList.get(getCounter());
 			if (instance.isExpandable()) {
-//				ControlsManager.getInstance().putToStack(this);
-				//XXX: have not full implemented
-//				fullScreenControl.showInstance(adsList.get(getCounter()));
-//				fullScreenControl.onStart();
-//				fullScreenControl.onResume();
+				ControlsManager.getInstance().putToStack(this);
+				mustInterceptActions = true;
+				fullScreenControl.showInstance(adsList.get(getCounter()));
+				fullScreenControl.onStart();
+				fullScreenControl.onResume();
 				
 			} else {
 				mContext.sendBroadcast(new Intent(
@@ -230,25 +241,19 @@ public class AdsControlExtension extends ControlExtension implements
 	@Override
 	public void onKey(int action, int keyCode, long timeStamp) {
 
-		if(fullScreenControl.isStarted()) {
-			fullScreenControl.onKey(action, keyCode, timeStamp);
-			return;
-		}
-		
-		if (action == Control.Intents.KEY_ACTION_PRESS
+		if (action == Control.Intents.KEY_ACTION_RELEASE
 				&& keyCode == Control.KeyCodes.KEYCODE_BACK) {
 
 			if(fullScreenControl.isStarted()) {
 				fullScreenControl.onPause();
 				fullScreenControl.onStop();
-				
-			}
-			if (!ControlsManager.getInstance().restore()) {
-				super.onKey(action, keyCode, timeStamp);
+				ControlsManager.getInstance().restore();
+				mustInterceptActions = false;
 			}
 		}
+		super.onKey(action, keyCode, timeStamp);
 	}
-
+	
 	@Override
 	public void onAdsMustChanged() {
 
