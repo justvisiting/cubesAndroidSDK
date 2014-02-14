@@ -35,8 +35,10 @@ public class AdsUpdater implements IClientCallback {
 	private List<AdsInstance> adsList;
 	private Context context;
 	private Deque<AdsRequest> requestsQueue;
+	
+	private AbstractParser imageParser;
 
-	public AdsUpdater(Context context, IAdsUpdateCallback callback) {
+	public AdsUpdater(Context context, CacheManager cacheManager, IAdsUpdateCallback callback) {
 
 		this.context = context;
 		this.callback = callback;
@@ -44,6 +46,7 @@ public class AdsUpdater implements IClientCallback {
 		this.loaderManager.registerCallback(this);
 		this.adsList = new ArrayList<AdsInstance>();
 		this.requestsQueue = new ArrayDeque<AdsRequest>();
+		imageParser = new AdsImageParser(cacheManager);
 	}
 
 	/**
@@ -96,8 +99,7 @@ public class AdsUpdater implements IClientCallback {
 		try {
 			Log.v("sdk_updater", "start load image");
 			TestFlight.passCheckpoint("start load image");
-			executeRequest(prepareRequest(url, request), new AdsImageParser(
-					context.getExternalCacheDir().getAbsolutePath()));
+			executeRequest(prepareRequest(url, request), imageParser);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -180,6 +182,9 @@ public class AdsUpdater implements IClientCallback {
 
 		if (!adsList.contains(instance)) {
 			adsList.add(instance);
+		} else {
+			adsList.remove(instance);
+			adsList.add(instance);
 		}
 		if (!executeNextRequest()) {
 			deliveryResult();
@@ -196,7 +201,7 @@ public class AdsUpdater implements IClientCallback {
 			callback.onAdsUpdated(adsList);
 		}
 	}
-
+	
 	private HttpRequest prepareRequest(String urlString, AdsRequest request)
 			throws MalformedURLException {
 
