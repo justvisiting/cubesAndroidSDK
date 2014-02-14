@@ -22,7 +22,7 @@ public class Configuration {
 	private long adsUpdateInterval = INVALID_ADS_UPDATE_INTERVAL; 
 	
 	
-	private static final long DEFAULT_ADS_BAR_CHANGE_INTERVAL = 20000L;
+	private static final long DEFAULT_ADS_BAR_CHANGE_INTERVAL = 5000L;
 	private static final long INVALID_ADS_BAR_CHANGE_INTERVAL = -1L;
 	private long adsBarChangeInterval = INVALID_ADS_BAR_CHANGE_INTERVAL;
 	
