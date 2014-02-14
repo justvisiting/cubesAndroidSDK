@@ -52,7 +52,7 @@ public class AdsManager implements IAdsUpdateCallback {
 	}
 	
 	public void dispose() {
-		cacheManager.clearCache();
+		cacheManager.clearCacheDirectory();
 		updateScheduler.stop();
 		updateScheduler.dispose();
 	}

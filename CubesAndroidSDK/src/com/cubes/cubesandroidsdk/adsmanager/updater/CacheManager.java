@@ -87,5 +87,27 @@ public class CacheManager {
 			};
 		}.start();
 	}
+	
+	/**
+	 * Clear all files from cache directory leaving it empty.
+	 * Performs in background thread
+	 */
+	public void clearCacheDirectory() {
+		new Thread() {
+			
+			@Override
+			public void run() {
+				final File cacheDir = new File(context.getExternalCacheDir().getAbsolutePath());
+				if(cacheDir.isDirectory()) {
+					File[] files = cacheDir.listFiles();
+					if(files != null && files.length > 0) {
+						for(File file: files) {
+							file.delete();
+						}
+					}
+				}
+			};
+		}.start();
+	}
 
 }
