@@ -111,7 +111,6 @@ public class AdsUpdater implements IClientCallback {
 		return new String[] { "http://iphonepackers.info/bannerad.xml",
 				"http://iphonepackers.info/bannerad2.xml",
 				"http://iphonepackers.info/LogoAd.xml",
-				"skijdghflsdgfd",
 				"http://iphonepackers.info/MultiPartLogoAd.xml" };// {
 																	// UrlManager.getLogoPtUrl(2),
 																	// UrlManager.getBannerPtUrl(2)
