@@ -20,6 +20,7 @@ import com.cubes.cubesandroidsdk.networkloader.loader.responses.AbstractParser;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.HttpResponse;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.IClientCallback;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.IResponse;
+import com.cubes.cubesandroidsdk.utils.UrlManager;
 import com.testflightapp.lib.TestFlight;
 
 /**
@@ -60,6 +61,7 @@ public class AdsUpdater implements IClientCallback {
 		if (callback != null) {
 			callback.onStartUpdate();
 		}
+		adsList.clear();
 		loadXmlAds();
 	}
 
@@ -108,13 +110,11 @@ public class AdsUpdater implements IClientCallback {
 	private String[] getUrlsArray() {
 
 		// TODO: implement getting of correct url
-		return new String[] { "http://iphonepackers.info/bannerad.xml",
-				"http://iphonepackers.info/bannerad2.xml",
-				"http://iphonepackers.info/LogoAd.xml",
-				"http://iphonepackers.info/MultiPartLogoAd.xml" };// {
-																	// UrlManager.getLogoPtUrl(2),
-																	// UrlManager.getBannerPtUrl(2)
-																	// };
+		return new String[] {UrlManager.getLogoPtUrl(2), UrlManager.getBannerPtUrl(2) };
+		/*return new String[] { "http://iphonepackers.info/bannerad.xml",
+		"http://iphonepackers.info/bannerad2.xml",
+		"http://iphonepackers.info/LogoAd.xml",
+		"http://iphonepackers.info/MultiPartLogoAd.xml" };*/
 	}
 
 	public void dispose() {
@@ -196,7 +196,7 @@ public class AdsUpdater implements IClientCallback {
 
 	private void deliveryResult() {
 		
-		if (callback != null) {
+		if (callback != null && adsList != null && !adsList.isEmpty()) {
 			callback.onAdsUpdated(adsList);
 		}
 	}
