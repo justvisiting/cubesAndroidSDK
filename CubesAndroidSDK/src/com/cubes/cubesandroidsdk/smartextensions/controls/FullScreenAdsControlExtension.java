@@ -1,5 +1,6 @@
 package com.cubes.cubesandroidsdk.smartextensions.controls;
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,15 +15,19 @@ import com.cubes.cubesandroidsdk.config.Configuration;
 import com.sonyericsson.extras.liveware.aef.control.Control;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlListItem;
+import com.testflightapp.lib.TestFlight;
 
 public class FullScreenAdsControlExtension extends ControlExtension {
 
 	private static final Config BITMAP_CONFIG = Bitmap.Config.RGB_565;
+	public static final long SHOWING_INTERVAL = 10000;
 	private int width;
 	private int height;
 	private Bitmap mBackground;
 	private AdsInstance instance;
 	private boolean isStarted;
+	private int counter = 11;
+	private String timerPrefics;
 
 	public FullScreenAdsControlExtension(Context context,
 			String hostAppPackageName) {
@@ -31,6 +36,11 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 		height = ExtensionDrawingHelper.getBarHeight(context);
 		mBackground = Bitmap.createBitmap(width, height, BITMAP_CONFIG);
 		mBackground.setDensity(DisplayMetrics.DENSITY_DEFAULT);
+		timerPrefics = mContext.getString(R.string.ads_timer_prefics);
+	}
+	
+	public void updateTimer() {
+		sendText(R.id.ads_fullscreen_timer_value, timerPrefics + String.valueOf(--counter));
 	}
 	
 	public boolean isStarted() {
@@ -42,7 +52,9 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 	public void onStart() {
 		
 		super.onStart();
+		TestFlight.passCheckpoint("STart full screen");
 		isStarted = true;
+		counter = 11;
 	}
 	
 	@Override
@@ -57,6 +69,7 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 	public void onStop() {
 
 		isStarted = false;
+		TestFlight.passCheckpoint("STop full screen");
 		super.onStop();
 	}
 	

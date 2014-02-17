@@ -15,8 +15,8 @@
         </Gallery>
 
         <RelativeLayout
-            android:layout_width="@dimen/ads_multipart_bar_image_width"
-            android:layout_height="@dimen/ads_multipart_bar_image_height" >
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
 
             <ImageView
                 android:id="@+id/ads_fullscreen_close_btn"
@@ -24,8 +24,21 @@
                 android:layout_height="@dimen/ads_fullscreen_close_btn_height"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_marginTop="@dimen/ads_fullscreen_close_btn_margin_top"
+                android:layout_marginRight="@dimen/ads_fullscreen_close_btn_margin_top"
                 android:clickable="true"
                 android:src="@drawable/close_btn" />
+            
+            <TextView 
+                android:id="@+id/ads_fullscreen_timer_value"
+                android:layout_marginLeft="@dimen/ads_fullscreen_timer_margin_left"
+                android:layout_marginBottom="@dimen/ads_fullscreen_timer_margin_bottom"
+                android:gravity="bottom"
+                android:layout_height="@dimen/ads_multipart_bar_image_height"
+                android:layout_width="@dimen/ads_multipart_bar_image_width"
+                android:textSize="@dimen/ads_fullscreen_timer_text_size"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentBottom="true"/>
         </RelativeLayout>
     </FrameLayout>
 

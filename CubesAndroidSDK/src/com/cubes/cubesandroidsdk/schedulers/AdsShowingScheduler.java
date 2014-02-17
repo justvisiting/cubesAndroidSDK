@@ -9,22 +9,25 @@ package com.cubes.cubesandroidsdk.schedulers;
 public class AdsShowingScheduler extends AbstractScheduler {
 
 	private IAdsChanger callback;
+	private int timerCode;
 	
 	/**
 	 * Initiates new instance of scheduler. After initiating call {@link AbstractScheduler#start()} for start timer work
-	 * @param callback - {@link IAdsChanger} object that must be implemented by client's class. If its null result will not deliver. 
+	 * @param callback - {@link IAdsChanger} object that must be implemented by client's class. If its null result will not deliver.
+	 * @param timerCode - code that use for dividing multiple timers 
 	 * @param intervalInMillis - interval between callback's invocations (in milliseconds). Cannot be 0 or negative value.
 	 */
-	public AdsShowingScheduler(IAdsChanger callback, long intervalInMillis) {
+	public AdsShowingScheduler(IAdsChanger callback, long intervalInMillis, int timerCode) {
 		super(intervalInMillis);
 		this.callback = callback;
+		this.timerCode = timerCode;
 	}
 
 	@Override
 	protected void onTick() {
 	
 		if(callback != null) {
-			callback.onAdsMustChanged();
+			callback.onAdsMustChanged(timerCode);
 		}
 	}
 	
@@ -40,7 +43,6 @@ public class AdsShowingScheduler extends AbstractScheduler {
 	 */
 	public interface IAdsChanger {
 		
-		void onAdsMustChanged();
+		void onAdsMustChanged(int timerCode);
 	}
-
 }

@@ -6,4 +6,9 @@
     
     <dimen name="ads_fullscreen_close_btn_height">36px</dimen>
     <dimen name="ads_fullscreen_close_btn_width">36px</dimen>
+    <dimen name="ads_fullscreen_timer_margin_bottom">5px</dimen>
+    <dimen name="ads_fullscreen_timer_margin_left">5px</dimen>
+    <dimen name="ads_fullscreen_timer_text_size">20px</dimen>
+    <dimen name="ads_fullscreen_close_btn_margin_top">5px</dimen>
+    <dimen name="ads_fullscreen_close_btn_margin_right">5px</dimen>
 </resources>
