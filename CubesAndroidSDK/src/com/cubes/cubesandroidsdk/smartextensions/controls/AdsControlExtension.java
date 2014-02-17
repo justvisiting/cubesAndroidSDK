@@ -12,6 +12,7 @@ import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.net.Uri;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
@@ -52,8 +53,14 @@ public class AdsControlExtension extends ControlExtension implements
 	private List<AdsInstance> adsList;
 	
 	private boolean mustInterceptActions;
+	
+	
+	private boolean isLoaderCallbackRegistered;
 
 	private FullScreenAdsControlExtension fullScreenControl;
+	private CountDownTimer fullScreenCloseTimer;
+	
+	private static final int TC_BAR_SHOW = 100;
 	
 	public AdsControlExtension(Context context, String hostAppPackageName) {
 		super(context, hostAppPackageName);
@@ -62,19 +69,8 @@ public class AdsControlExtension extends ControlExtension implements
 		mBackground = Bitmap.createBitmap(width, height, BITMAP_CONFIG);
 		mBackground.setDensity(DisplayMetrics.DENSITY_DEFAULT);
 		scheduler = new AdsShowingScheduler(this, Configuration.getInstance()
-				.getAdsBarChangeIntervalMillis());
+				.getAdsBarChangeIntervalMillis(), TC_BAR_SHOW);
 		adsServiceConnection = prepareServiceConnection();
-		fullScreenControl = new FullScreenAdsControlExtension(context,
-				hostAppPackageName);
-		bindToService();
-	}
-	
-	public boolean mustInterceptActions() {
-		
-		return mustInterceptActions;
-	}
-
-	private void registerLoaderCallback() {
 		loaderCallback = new BroadcastReceiver() {
 
 			@Override
@@ -98,14 +94,41 @@ public class AdsControlExtension extends ControlExtension implements
 				}
 			}
 		};
+		fullScreenControl = new FullScreenAdsControlExtension(context,
+				hostAppPackageName);
+		fullScreenCloseTimer = new CountDownTimer(11000, 1000) {
+			
+			@Override
+			public void onTick(long millisUntilFinished) {
+				fullScreenControl.updateTimer();
+			}
+			
+			@Override
+			public void onFinish() {
+				backFromFullScreen();
+				
+			}
+		};
+		bindToService();
+	}
+	
+	public boolean mustInterceptActions() {
+		
+		return mustInterceptActions;
+	}
 
-		mContext.registerReceiver(loaderCallback, new IntentFilter(
-				Configuration.ACTION_SEND_LOADER_CALLBACK));
+	private void registerLoaderCallback() {
+		if(!isLoaderCallbackRegistered) {
+			mContext.registerReceiver(loaderCallback, new IntentFilter(
+					Configuration.ACTION_SEND_LOADER_CALLBACK));
+			isLoaderCallbackRegistered = true;
+		}
 	}
 
 	private void unregisterLoaderCallback() {
-		if(loaderCallback != null) {
+		if(loaderCallback != null && isLoaderCallbackRegistered) {
 			mContext.unregisterReceiver(loaderCallback);
+			isLoaderCallbackRegistered = false;
 		}
 	}
 
@@ -196,11 +219,14 @@ public class AdsControlExtension extends ControlExtension implements
 			performBarClick();
 		} else if(layoutReference == R.id.ads_fullscreen_close_btn) {
 			backFromFullScreen();
+		} else if(fullScreenControl.isStarted()) {
+			fullScreenControl.onObjectClick(event);
 		}
 	}
 	
 	private void backFromFullScreen() {
 		
+		fullScreenCloseTimer.cancel();
 		fullScreenControl.onPause();
 		fullScreenControl.onStop();
 		ControlsManager.getInstance().restore();
@@ -247,6 +273,7 @@ public class AdsControlExtension extends ControlExtension implements
 		fullScreenControl.showInstance(adsList.get(getCounter()));
 		fullScreenControl.onStart();
 		fullScreenControl.onResume();
+		fullScreenCloseTimer.start();
 	}
 
 	@Override
@@ -270,17 +297,21 @@ public class AdsControlExtension extends ControlExtension implements
 	}
 	
 	@Override
-	public void onAdsMustChanged() {
+	public void onAdsMustChanged(int timerCode) {
 
 		Log.v("SDK", "scheduled drawing banner");
-		if (adsList != null && !adsList.isEmpty()) {
-			moveCounter();
-			drawAdsInstance(adsList.get(getCounter()));
-		} else {
-			drawBitmap(makeEmptyAd(getDrawingArea()));
+		switch (timerCode) {
+		case TC_BAR_SHOW:
+			if (adsList != null && !adsList.isEmpty()) {
+				moveCounter();
+				drawAdsInstance(adsList.get(getCounter()));
+			} else {
+				drawBitmap(makeEmptyAd(getDrawingArea()));
+			}
+			break;
 		}
 	}
-
+	
 	/**
 	 * Drawing functions
 	 * 
