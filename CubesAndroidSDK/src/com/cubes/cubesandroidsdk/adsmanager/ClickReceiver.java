@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.webkit.URLUtil;
 
 import com.cubes.cubesandroidsdk.config.ClickAdsAction;
 
@@ -46,10 +45,10 @@ public class ClickReceiver extends BroadcastReceiver {
 	
 	private void openBrowser(Context context, String url) {
 		
-		if(URLUtil.isValidUrl(url)) {
-			
-			context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(url)).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-		}
+//		if(URLUtil.isValidUrl(url)) {
+			context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("http://13cubes.com")).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+//			context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse(url)).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+//		}
 	}
 	
 	private void performCall(Context context, String number) {

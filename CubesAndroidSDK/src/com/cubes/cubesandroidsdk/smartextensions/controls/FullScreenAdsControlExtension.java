@@ -89,6 +89,11 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 	public void onListItemClick(ControlListItem listItem, int clickType,
 			int itemLayoutReference) {
 		super.onListItemClick(listItem, clickType, itemLayoutReference);
+		performClick();
+	}
+	
+	private void performClick() {
+
 		mContext.sendBroadcast(new Intent(
 				Configuration.ACTION_CLICK_ADS_EVENT).putExtra(
 				ClickReceiver.INTENT_CLICK_ACTION,
@@ -96,7 +101,7 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 				ClickReceiver.INTENT_CLICK_DATA,
 				instance.getClickData()));
 	}
-	
+
 	@Override
 	public void onListItemSelected(ControlListItem listItem) {
 		super.onListItemSelected(listItem);
