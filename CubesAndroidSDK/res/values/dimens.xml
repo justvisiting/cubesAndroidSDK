@@ -3,4 +3,7 @@
     
     <dimen name="ads_multipart_bar_image_height">36px</dimen>
     <dimen name="ads_multipart_bar_image_width">220px</dimen>
+    
+    <dimen name="ads_fullscreen_close_btn_height">36px</dimen>
+    <dimen name="ads_fullscreen_close_btn_width">36px</dimen>
 </resources>

@@ -18,6 +18,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.cubes.cubesandroidsdk.R;
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
 import com.cubes.cubesandroidsdk.adsmanager.ClickReceiver;
 import com.cubes.cubesandroidsdk.config.AdsType;
@@ -160,6 +161,7 @@ public class AdsControlExtension extends ControlExtension implements
 	@Override
 	public void onStart() {
 		super.onStart();
+		TestFlight.passCheckpoint("STart ads extension");
 		if (containerImgId != 0) {
 			drawBitmap(makeEmptyAd(getDrawingArea()));
 			scheduler.start();
@@ -170,6 +172,7 @@ public class AdsControlExtension extends ControlExtension implements
 	@Override
 	public void onStop() {
 		super.onStop();
+		TestFlight.passCheckpoint("STart ads extension");
 		scheduler.stop();
 		unregisterLoaderCallback();
 	}
@@ -191,7 +194,17 @@ public class AdsControlExtension extends ControlExtension implements
 		int layoutReference = event.getLayoutReference();
 		if (layoutReference == containerImgId) {
 			performBarClick();
+		} else if(layoutReference == R.id.ads_fullscreen_close_btn) {
+			backFromFullScreen();
 		}
+	}
+	
+	private void backFromFullScreen() {
+		
+		fullScreenControl.onPause();
+		fullScreenControl.onStop();
+		ControlsManager.getInstance().restore();
+		mustInterceptActions = false;
 	}
 	
 	@Override
@@ -214,11 +227,7 @@ public class AdsControlExtension extends ControlExtension implements
 		if (adsList != null && !adsList.isEmpty()) {
 			final AdsInstance instance = adsList.get(getCounter());
 			if (instance.isExpandable()) {
-				ControlsManager.getInstance().putToStack(this);
-				mustInterceptActions = true;
-				fullScreenControl.showInstance(adsList.get(getCounter()));
-				fullScreenControl.onStart();
-				fullScreenControl.onResume();
+				gotToFullScreen();
 				
 			} else {
 				mContext.sendBroadcast(new Intent(
@@ -231,6 +240,15 @@ public class AdsControlExtension extends ControlExtension implements
 		}
 	}
 	
+	private void gotToFullScreen() {
+		
+		ControlsManager.getInstance().putToStack(this);
+		mustInterceptActions = true;
+		fullScreenControl.showInstance(adsList.get(getCounter()));
+		fullScreenControl.onStart();
+		fullScreenControl.onResume();
+	}
+
 	@Override
 	public void onRequestListItem(int layoutReference, int listItemPosition) {
 		super.onRequestListItem(layoutReference, listItemPosition);
@@ -245,10 +263,7 @@ public class AdsControlExtension extends ControlExtension implements
 				&& keyCode == Control.KeyCodes.KEYCODE_BACK) {
 
 			if(fullScreenControl.isStarted()) {
-				fullScreenControl.onPause();
-				fullScreenControl.onStop();
-				ControlsManager.getInstance().restore();
-				mustInterceptActions = false;
+				backFromFullScreen();
 			}
 		}
 		super.onKey(action, keyCode, timeStamp);
