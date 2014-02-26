@@ -66,5 +66,10 @@ public class AdsManagerService extends Service {
 			
 			return adsManager.getAds();
 		}
+		
+		public AdsInstance[] getDefaultAd() {
+			
+			return adsManager.getDefaultAd();
+		}
 	}
 }

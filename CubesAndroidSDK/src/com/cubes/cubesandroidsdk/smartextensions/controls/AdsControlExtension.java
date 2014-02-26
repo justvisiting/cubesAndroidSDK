@@ -1,5 +1,7 @@
 package com.cubes.cubesandroidsdk.smartextensions.controls;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import android.app.Service;
@@ -60,6 +62,8 @@ public class AdsControlExtension extends ControlExtension implements
 	private FullScreenAdsControlExtension fullScreenControl;
 	private CountDownTimer fullScreenCloseTimer;
 	
+	private List<AdsInstance> defaultAdsList;
+	
 	private static final int TC_BAR_SHOW = 100;
 	
 	public AdsControlExtension(Context context, String hostAppPackageName) {
@@ -71,6 +75,7 @@ public class AdsControlExtension extends ControlExtension implements
 		scheduler = new AdsShowingScheduler(this, Configuration.getInstance()
 				.getAdsBarChangeIntervalMillis(), TC_BAR_SHOW);
 		adsServiceConnection = prepareServiceConnection();
+		defaultAdsList = new ArrayList<AdsInstance>();
 		loaderCallback = new BroadcastReceiver() {
 
 			@Override
@@ -85,10 +90,10 @@ public class AdsControlExtension extends ControlExtension implements
 				if (adsList != null && !adsList.isEmpty()) {
 					Log.v("SDK",
 							"loaded ads list with size - " + adsList.size());
+					
 					TestFlight.passCheckpoint("loaded ads list with size - "
 							+ adsList.size());
 					drawAdsInstance(adsList.get(getCounter()));
-					moveCounter();
 				} else {
 					drawBitmap(makeEmptyAd(getDrawingArea()));
 				}
@@ -142,12 +147,17 @@ public class AdsControlExtension extends ControlExtension implements
 				if (service != null) {
 					serviceBinder = (AdsManagerServiceBinder) service;
 					registerLoaderCallback();
+					AdsInstance[] instances = serviceBinder.getDefaultAd();
+					if(instances != null) {
+						defaultAdsList = Arrays.asList(instances);
+					}
 				}
 			}
 
 			@Override
 			public void onServiceDisconnected(ComponentName arg0) {
 
+				//Nothing to do
 			}
 		};
 	}
@@ -184,7 +194,7 @@ public class AdsControlExtension extends ControlExtension implements
 	@Override
 	public void onStart() {
 		super.onStart();
-		TestFlight.passCheckpoint("STart ads extension");
+		TestFlight.passCheckpoint("Start ads extension");
 		if (containerImgId != 0) {
 			drawBitmap(makeEmptyAd(getDrawingArea()));
 			scheduler.start();
@@ -219,8 +229,6 @@ public class AdsControlExtension extends ControlExtension implements
 			performBarClick();
 		} else if(layoutReference == R.id.ads_fullscreen_close_btn) {
 			backFromFullScreen();
-		} else if(fullScreenControl.isStarted()) {
-			fullScreenControl.onObjectClick(event);
 		}
 	}
 	
@@ -252,6 +260,7 @@ public class AdsControlExtension extends ControlExtension implements
 
 		if (adsList != null && !adsList.isEmpty()) {
 			final AdsInstance instance = adsList.get(getCounter());
+			Log.v("SDK_ads", " clicked - " + instance.getClickData() + ", full screen" + instance.getFullscreenAds().size() + ",  counter - " + getCounter());
 			if (instance.isExpandable()) {
 				gotToFullScreen();
 				
@@ -305,6 +314,7 @@ public class AdsControlExtension extends ControlExtension implements
 			if (adsList != null && !adsList.isEmpty()) {
 				moveCounter();
 				drawAdsInstance(adsList.get(getCounter()));
+				Log.v("SDK_ads", "show instance - " + getCounter() + ", "  + adsList.get(getCounter()).getClickData());
 			} else {
 				drawBitmap(makeEmptyAd(getDrawingArea()));
 			}
@@ -319,7 +329,7 @@ public class AdsControlExtension extends ControlExtension implements
 
 	private void drawBitmap(Bitmap bitmap) {
 
-		sendImage(containerImgId, bitmap);
+		sendImage(containerImgId, Bitmap.createScaledBitmap(bitmap, 220, 36, false));
 	}
 
 	private Bitmap makeTextAd(Bitmap bitmap, String text) {
@@ -330,9 +340,22 @@ public class AdsControlExtension extends ControlExtension implements
 
 	private Bitmap makeEmptyAd(Bitmap bitmap) {
 
-		// return ExtensionDrawingHelper.setTextIntoBitmap(mContext, bitmap,
-		// mContext.getString(R.string.ads_empty_banner_text), width,
-		// height);
+		if(defaultAdsList == null) {
+			return bitmap;
+		}
+		for(AdsInstance instance: defaultAdsList) {
+			if(instance.getAdsType() == AdsType.MULTIPART) {
+				try {
+					Bitmap bar = MediaStore.Images.Media.getBitmap(
+							mContext.getContentResolver(),
+							Uri.parse(instance.getBarUriString()));
+					return bar;
+				} catch (Exception e) {
+					e.printStackTrace();
+					return bitmap;
+				}
+			}
+		}
 		return bitmap;
 	}
 
@@ -346,9 +369,10 @@ public class AdsControlExtension extends ControlExtension implements
 						instance.getBarTextString()));
 			} else {
 				try {
-					drawBitmap(MediaStore.Images.Media.getBitmap(
+					Bitmap bar = MediaStore.Images.Media.getBitmap(
 							mContext.getContentResolver(),
-							Uri.parse(instance.getBarUriString())));
+							Uri.parse(instance.getBarUriString()));
+					drawBitmap(bar);
 				} catch (Exception e) {
 					e.printStackTrace();
 					drawBitmap(makeEmptyAd(getDrawingArea()));
@@ -367,6 +391,22 @@ public class AdsControlExtension extends ControlExtension implements
 					drawBitmap(MediaStore.Images.Media.getBitmap(
 							mContext.getContentResolver(),
 							Uri.parse(instance.getBarUriString())));
+				} catch (Exception e) {
+					e.printStackTrace();
+					drawBitmap(makeEmptyAd(getDrawingArea()));
+				}
+			}
+			break;
+		case AdsType.LOGO_AD:
+			if (instance.hasTextBar()) {
+				drawBitmap(makeTextAd(getDrawingArea(),
+						instance.getBarTextString()));
+			} else {
+				try {
+					Bitmap bar = MediaStore.Images.Media.getBitmap(
+							mContext.getContentResolver(),
+							Uri.parse(instance.getBarUriString()));
+					drawBitmap(bar);
 				} catch (Exception e) {
 					e.printStackTrace();
 					drawBitmap(makeEmptyAd(getDrawingArea()));

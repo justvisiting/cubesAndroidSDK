@@ -34,20 +34,26 @@ public class AdsUpdater implements IClientCallback {
 	private IAdsUpdateCallback callback;
 	private LoaderManager loaderManager;
 	private List<AdsInstance> adsList;
+	private List<AdsInstance> defaultAdsList;
 	private Context context;
 	private Deque<AdsRequest> requestsQueue;
-	
+
 	private AbstractParser imageParser;
 
-	public AdsUpdater(Context context, CacheManager cacheManager, IAdsUpdateCallback callback) {
+	private boolean needDefaultLoading;
+
+	public AdsUpdater(Context context, CacheManager cacheManager,
+			IAdsUpdateCallback callback, boolean needDefaultLoading) {
 
 		this.context = context;
 		this.callback = callback;
 		this.loaderManager = new LoaderManager();
 		this.loaderManager.registerCallback(this);
 		this.adsList = new ArrayList<AdsInstance>();
+		this.defaultAdsList = new ArrayList<AdsInstance>();
 		this.requestsQueue = new ArrayDeque<AdsRequest>();
-		imageParser = new AdsImageParser(cacheManager);
+		this.imageParser = new AdsImageParser(cacheManager);
+		this.needDefaultLoading = needDefaultLoading;
 	}
 
 	/**
@@ -55,7 +61,7 @@ public class AdsUpdater implements IClientCallback {
 	 */
 	public void loadAd() {
 
-		if(!LoaderManager.isNetworkAvailable(context)) {
+		if (!LoaderManager.isNetworkAvailable(context)) {
 			return;
 		}
 		if (callback != null) {
@@ -65,22 +71,40 @@ public class AdsUpdater implements IClientCallback {
 		loadXmlAds();
 	}
 
-	private void loadXmlAds() {
-			for (String url : getUrlsArray()) {
+	public void initialLoading() {
+
+		if (needDefaultLoading) {
+			defaultAdsList.clear();
+			for (String url : getDefaultUrlsArray()) {
 				final AdsRequest request = new AdsRequest();
 				request.setRequestType(AdsRequest.TYPE_XML);
 				request.setStatus(AdsRequest.STATUS_PROGRESS);
 				request.setXmlUrl(url);
+				request.setDefault(true);
 				requestsQueue.add(request);
 			}
-
-			executeNextRequest();
-			Log.v("sdk_updater", "start load xml");
-			TestFlight.passCheckpoint("Start load XMLs");
+		}
+		loadXmlAds();
 	}
-	
+
+	private void loadXmlAds() {
+
+		for (String url : getUrlsArray()) {
+			final AdsRequest request = new AdsRequest();
+			request.setRequestType(AdsRequest.TYPE_XML);
+			request.setStatus(AdsRequest.STATUS_PROGRESS);
+			request.setXmlUrl(url);
+			request.setDefault(false);
+			requestsQueue.add(request);
+		}
+
+		executeNextRequest();
+		Log.v("sdk_updater", "start load xml");
+		TestFlight.passCheckpoint("Start load XMLs");
+	}
+
 	private boolean executeNextRequest() {
-		
+
 		final AdsRequest request = requestsQueue.poll();
 		if (request != null) {
 			try {
@@ -107,14 +131,22 @@ public class AdsUpdater implements IClientCallback {
 		}
 	}
 
+	private String[] getDefaultUrlsArray() {
+		return new String[] { UrlManager.getDefaultBannerUrl(1),
+				UrlManager.getDefaultInterstitialUrl() };
+	}
+
 	private String[] getUrlsArray() {
 
 		// TODO: implement getting of correct url
-		return new String[] {UrlManager.getLogoPtUrl(2), UrlManager.getBannerPtUrl(2) };
-		/*return new String[] { "http://iphonepackers.info/bannerad.xml",
-		"http://iphonepackers.info/bannerad2.xml",
-		"http://iphonepackers.info/LogoAd.xml",
-		"http://iphonepackers.info/MultiPartLogoAd.xml" };*/
+		return new String[] { UrlManager.getLogoPtUrl(2),
+				UrlManager.getBannerPtUrl(2), UrlManager.getInterstitialUrl() };
+		/*
+		 * return new String[] { "http://iphonepackers.info/bannerad.xml",
+		 * "http://iphonepackers.info/bannerad2.xml",
+		 * "http://iphonepackers.info/LogoAd.xml",
+		 * "http://iphonepackers.info/MultiPartLogoAd.xml" };
+		 */
 	}
 
 	public void dispose() {
@@ -132,13 +164,14 @@ public class AdsUpdater implements IClientCallback {
 					&& adsRequest.getStatus() == AdsRequest.STATUS_FINISHED) {
 				Log.v("sdk_updater", "xml loaded");
 				TestFlight.passCheckpoint("xml loaded");
-				
+
 				if (adsRequest.hasBarUrl()) {
 					loadBarImage(adsRequest);
 				} else if (adsRequest.hasMoreUrls()) {
 					loadFullScreenImage(adsRequest);
 				} else {
-					putInstanceIntoList(adsRequest.getInstance());
+					saveInstance(adsRequest.getInstance(),
+							adsRequest.isDefault());
 				}
 			} else if (adsRequest.getRequestType() == AdsRequest.TYPE_IMAGE_BAR
 					&& adsRequest.getStatus() == AdsRequest.STATUS_FINISHED) {
@@ -146,7 +179,8 @@ public class AdsUpdater implements IClientCallback {
 				if (adsRequest.hasMoreUrls()) {
 					loadFullScreenImage(adsRequest);
 				} else {
-					putInstanceIntoList(adsRequest.getInstance());
+					saveInstance(adsRequest.getInstance(),
+							adsRequest.isDefault());
 				}
 			} else if (adsRequest.getRequestType() == AdsRequest.TYPE_IMAGE_FULLSCREEN) {
 				TestFlight.passCheckpoint("image loaded");
@@ -155,7 +189,8 @@ public class AdsUpdater implements IClientCallback {
 				if (adsRequest.hasMoreUrls()) {
 					loadFullScreenImage(adsRequest);
 				} else {
-					putInstanceIntoList(adsRequest.getInstance());
+					saveInstance(adsRequest.getInstance(),
+							adsRequest.isDefault());
 				}
 			}
 		} else {
@@ -177,34 +212,47 @@ public class AdsUpdater implements IClientCallback {
 		loadImageAds(adsRequest.getNextFullscreenUrl(), adsRequest);
 	}
 
-	private void putInstanceIntoList(AdsInstance instance) {
+	private void saveInstance(AdsInstance instance, boolean isDefault) {
 
-		if (!adsList.contains(instance)) {
-			adsList.add(instance);
+		if (isDefault) {
+			putInstanceToList(defaultAdsList, instance);
 		} else {
-			adsList.remove(instance);
-			adsList.add(instance);
+			putInstanceToList(adsList, instance);
 		}
 		if (!executeNextRequest()) {
 			deliveryResult();
-			
+
 			TestFlight.passCheckpoint("send result to back");
 			Log.v("sdk_updater", "send result to back");
 		}
+	}
 
+	private void putInstanceToList(List<AdsInstance> list, AdsInstance instance) {
+		if (!list.contains(instance)) {
+			list.add(instance);
+		} else {
+			list.remove(instance);
+			list.add(instance);
+		}
 	}
 
 	private void deliveryResult() {
-		
-		if (callback != null && adsList != null && !adsList.isEmpty()) {
-			callback.onAdsUpdated(adsList);
+
+		if (callback != null) {
+			if (adsList != null && !adsList.isEmpty()) {
+				callback.onAdsUpdated(adsList, false);
+			}
+			if (defaultAdsList != null && !defaultAdsList.isEmpty()) {
+				callback.onAdsUpdated(defaultAdsList, true);
+			}
 		}
 	}
-	
+
 	private HttpRequest prepareRequest(String urlString, AdsRequest request)
 			throws MalformedURLException {
 
-		final HttpGetRequest networkRequest = new HttpGetRequest(new URL(urlString));
+		final HttpGetRequest networkRequest = new HttpGetRequest(new URL(
+				urlString));
 		final HttpResponse response = new HttpResponse();
 		response.setData(request);
 		networkRequest.setResponse(response);
@@ -223,7 +271,7 @@ public class AdsUpdater implements IClientCallback {
 	 */
 	public interface IAdsUpdateCallback {
 
-		void onAdsUpdated(List<AdsInstance> newAdsList);
+		void onAdsUpdated(List<AdsInstance> newAdsList, boolean isDefault);
 
 		void onStartUpdate();
 	}

@@ -104,6 +104,8 @@ public class ResponseParser extends DefaultHandler {
 				xml.set_adType(AdsType.MULTIPART);
 			} else if(builder.toString().equalsIgnoreCase("MultiPartLogoAd")) {
 				xml.set_adType(AdsType.MULTIPART_LOGO);
+			} else if(builder.toString().equalsIgnoreCase("LogoAd")) {
+				xml.set_adType(AdsType.LOGO_AD);
 			}
 
 		}

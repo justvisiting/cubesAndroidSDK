@@ -21,5 +21,6 @@ public class AdsType {
 	 * Ads with small bar and full-screen banner (expandable ads)
 	 */
 	public static final int MULTIPART_LOGO = 102;
+	public static final int LOGO_AD = 103;
 
 }

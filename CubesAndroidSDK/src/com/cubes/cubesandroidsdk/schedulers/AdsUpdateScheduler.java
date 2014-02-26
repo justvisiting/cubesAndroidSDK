@@ -1,11 +1,8 @@
 package com.cubes.cubesandroidsdk.schedulers;
 
-import android.content.Context;
-
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
 import com.cubes.cubesandroidsdk.adsmanager.updater.AdsUpdater;
 import com.cubes.cubesandroidsdk.adsmanager.updater.AdsUpdater.IAdsUpdateCallback;
-import com.cubes.cubesandroidsdk.adsmanager.updater.CacheManager;
 
 /**
  * Perform update ads by predefined schedule. Result will deliver to client
@@ -19,9 +16,9 @@ public class AdsUpdateScheduler extends AbstractScheduler {
 	private AdsUpdater updater;
 
 	public AdsUpdateScheduler(IAdsUpdateCallback callback,
-			long intervalInMillis, CacheManager cacheManager, Context context) {
+			long intervalInMillis, AdsUpdater updater) {
 		super(intervalInMillis);
-		updater = new AdsUpdater(context, cacheManager, callback);
+		this.updater = updater;
 	}
 
 	@Override
@@ -33,7 +30,7 @@ public class AdsUpdateScheduler extends AbstractScheduler {
 	@Override
 	public void start() {
 
-		updater.loadAd();
+		updater.initialLoading();
 		super.start();
 	}
 

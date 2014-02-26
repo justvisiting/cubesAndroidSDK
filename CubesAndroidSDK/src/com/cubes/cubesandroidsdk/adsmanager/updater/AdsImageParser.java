@@ -6,14 +6,16 @@ import com.cubes.cubesandroidsdk.networkloader.loader.responses.AbstractParser;
 import com.cubes.cubesandroidsdk.networkloader.loader.responses.IResponse;
 
 /**
- * Load from stream image, save it into cache directory and put url string into {@link IResponse}
+ * Load from stream image, save it into cache directory and put url string into
+ * {@link IResponse}
+ * 
  * @author makarenko.s
- *
+ * 
  */
 public class AdsImageParser extends AbstractParser {
 
 	private volatile CacheManager cacheManager;
-	
+
 	public AdsImageParser(CacheManager cacheManager) {
 		this.cacheManager = cacheManager;
 	}
@@ -22,8 +24,9 @@ public class AdsImageParser extends AbstractParser {
 	public IResponse parse(InputStream stream, IResponse response) {
 
 		try {
-			final String uri = cacheManager.saveToFile(stream);
 			final AdsRequest request = (AdsRequest) response.getData();
+			
+			final String uri = request.isDefault()? cacheManager.saveToPermanentFile(stream): cacheManager.saveToFile(stream);
 			
 			if(request.getRequestType() == AdsRequest.TYPE_IMAGE_BAR) {
 				request.getInstance().setBarUriString(uri);

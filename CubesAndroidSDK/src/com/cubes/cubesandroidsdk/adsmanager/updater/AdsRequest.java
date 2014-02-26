@@ -21,7 +21,16 @@ public class AdsRequest {
 	private Deque<String> fullscreenUrlQueue;
 	private String barUrl;
 	private String xmlUrl;
+	private boolean isDefault;
 	
+	public boolean isDefault() {
+		return isDefault;
+	}
+
+	public void setDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+	}
+
 	public String getXmlUrl() {
 		return xmlUrl;
 	}

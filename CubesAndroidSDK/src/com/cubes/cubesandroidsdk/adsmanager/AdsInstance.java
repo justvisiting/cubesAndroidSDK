@@ -5,9 +5,8 @@ import java.util.List;
 
 import android.text.TextUtils;
 
-
 public class AdsInstance {
-	
+
 	private int adsType;
 	private int clickAction;
 	private String clickData;
@@ -30,11 +29,11 @@ public class AdsInstance {
 	public void setBarUriString(String barUriString) {
 		this.barUriString = barUriString;
 	}
-	
+
 	public List<String> getFullscreenAds() {
 		return fullscreenAdsList;
 	}
-	
+
 	public void setFullscreenAds(List<String> list) {
 		fullscreenAdsList = list;
 	}
@@ -51,9 +50,8 @@ public class AdsInstance {
 		return clickData;
 	}
 
-	
 	public AdsInstance(int adsType, int clickAction, String clickData,
-			 String barUriString, String barTextString) {
+			String barUriString, String barTextString) {
 		this.adsType = adsType;
 		this.clickAction = clickAction;
 		this.clickData = clickData;
@@ -72,13 +70,16 @@ public class AdsInstance {
 
 	@Override
 	public boolean equals(Object o) {
-		
-		if(!(o instanceof AdsInstance)) {
+
+		if (!(o instanceof AdsInstance)) {
 			return false;
 		}
 		AdsInstance instance = (AdsInstance) o;
-		return (instance.getClickData().equalsIgnoreCase(clickData)) && (instance.getAdsType() == adsType);
+
+		return !TextUtils.isEmpty(barUriString)
+				&& !TextUtils.isEmpty(instance.getBarUriString())
+				&& instance.getBarUriString().equalsIgnoreCase(barUriString)
+				&& (instance.getClickData().equalsIgnoreCase(clickData))
+				&& (instance.getAdsType() == adsType);
 	}
-	
-	
 }

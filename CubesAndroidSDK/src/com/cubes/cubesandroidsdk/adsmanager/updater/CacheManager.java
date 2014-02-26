@@ -11,6 +11,8 @@ import java.util.List;
 import android.content.Context;
 import android.net.Uri;
 
+import com.testflightapp.lib.TestFlight;
+
 /**
  * Encapsulates work with cache directory.
  * @author makarenko.s
@@ -42,24 +44,11 @@ public class CacheManager {
 	 */
 	public String saveToFile(InputStream stream) throws IOException {
 		
-		final File file = new File(context.getExternalCacheDir().getAbsolutePath(), String.valueOf(System.currentTimeMillis()));
-		if(!file.exists()) {
-			file.createNewFile();
-		}
-		final OutputStream output = new FileOutputStream(file);
-		final byte[] buffer = new byte[BUFFER_SIZE];
-		int bytesRead = 0;
-		while ((bytesRead = stream.read(buffer, 0, buffer.length)) >= 0) {
-			output.write(buffer, 0, bytesRead);
-		}
-		output.flush();
-		output.close();
-		
-		final String fileUri = Uri.fromFile(file).toString();
+		final File file = saveStream(stream, context.getExternalCacheDir().getAbsolutePath());
 		synchronized (lock) {
 			newFilesList.add(file.getName());	
 		}
-		return fileUri;
+		return Uri.fromFile(file).toString();
 	}
 	
 	/**
@@ -106,8 +95,32 @@ public class CacheManager {
 						}
 					}
 				}
+				TestFlight.passCheckpoint("Finally cache cleared");
 			};
 		}.start();
 	}
+	
+	public String saveToPermanentFile(InputStream input) throws IOException {
 
+		final File file = saveStream(input, context.getFilesDir().getAbsolutePath());
+		return Uri.fromFile(file).toString();
+	}
+	
+	private File saveStream(InputStream stream, String filePath) throws IOException {
+		final File file = new File(filePath, String.valueOf(System.currentTimeMillis()));
+		if(!file.exists()) {
+			file.createNewFile();
+		}
+		final OutputStream output = new FileOutputStream(file);
+		final byte[] buffer = new byte[BUFFER_SIZE];
+		int bytesRead = 0;
+		while ((bytesRead = stream.read(buffer, 0, buffer.length)) >= 0) {
+			output.write(buffer, 0, bytesRead);
+		}
+		output.flush();
+		output.close();
+		
+		return file;
+	}
+	
 }
