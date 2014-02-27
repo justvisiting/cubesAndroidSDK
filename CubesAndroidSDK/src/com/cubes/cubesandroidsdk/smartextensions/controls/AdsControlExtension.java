@@ -88,7 +88,7 @@ public class AdsControlExtension extends ControlExtension implements
 				}
 
 				if (adsList != null && !adsList.isEmpty()) {
-					Log.v("SDK",
+					Log.v("SDK_control",
 							"loaded ads list with size - " + adsList.size());
 					
 					TestFlight.passCheckpoint("loaded ads list with size - "
@@ -111,7 +111,6 @@ public class AdsControlExtension extends ControlExtension implements
 			@Override
 			public void onFinish() {
 				backFromFullScreen();
-				
 			}
 		};
 		bindToService();
@@ -262,7 +261,7 @@ public class AdsControlExtension extends ControlExtension implements
 			final AdsInstance instance = adsList.get(getCounter());
 			Log.v("SDK_ads", " clicked - " + instance.getClickData() + ", full screen" + instance.getFullscreenAds().size() + ",  counter - " + getCounter());
 			if (instance.isExpandable()) {
-				gotToFullScreen();
+				gotToFullScreen(instance);
 				
 			} else {
 				mContext.sendBroadcast(new Intent(
@@ -275,14 +274,14 @@ public class AdsControlExtension extends ControlExtension implements
 		}
 	}
 	
-	private void gotToFullScreen() {
+	private void gotToFullScreen(AdsInstance instance) {
 		
 		ControlsManager.getInstance().putToStack(this);
 		mustInterceptActions = true;
-		fullScreenControl.showInstance(adsList.get(getCounter()));
+		fullScreenControl.showInstance(instance);
 		fullScreenControl.onStart();
 		fullScreenControl.onResume();
-		fullScreenCloseTimer.start();
+//		fullScreenCloseTimer.start();
 	}
 
 	@Override
@@ -319,6 +318,18 @@ public class AdsControlExtension extends ControlExtension implements
 				drawBitmap(makeEmptyAd(getDrawingArea()));
 			}
 			break;
+		}
+	}
+	
+	public void showInterstitial() {
+		
+		if(adsList != null) {
+			for(AdsInstance instance: adsList) {
+				if(instance.getAdsType() == AdsType.INTERSTITIAL) {
+					gotToFullScreen(instance);
+					return;
+				}
+			}
 		}
 	}
 	
