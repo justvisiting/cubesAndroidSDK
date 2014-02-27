@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="@dimen/smart_watch_2_control_width"
     android:layout_height="@dimen/smart_watch_2_control_height" >
 
@@ -13,7 +13,7 @@
         android:layout_width="@dimen/smart_watch_2_control_width"
         android:layout_height="@dimen/smart_watch_2_control_height" >
 
-        <ImageView
+   <!--      <ImageView
             android:id="@+id/ads_fullscreen_close_btn"
             android:layout_width="@dimen/ads_fullscreen_close_btn_width"
             android:layout_height="@dimen/ads_fullscreen_close_btn_height"
@@ -33,7 +33,7 @@
             android:layout_marginBottom="@dimen/ads_fullscreen_timer_margin_bottom"
             android:layout_marginLeft="@dimen/ads_fullscreen_timer_margin_left"
             android:gravity="bottom"
-            android:textSize="@dimen/ads_fullscreen_timer_text_size" />
+            android:textSize="@dimen/ads_fullscreen_timer_text_size" /> -->
     </RelativeLayout>
 
-</FrameLayout>
+</RelativeLayout>

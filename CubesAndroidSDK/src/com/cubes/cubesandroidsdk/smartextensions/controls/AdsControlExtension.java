@@ -35,6 +35,7 @@ import com.sonyericsson.extras.liveware.aef.control.Control;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlListItem;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlObjectClickEvent;
+import com.sonyericsson.extras.liveware.extension.util.control.ControlTouchEvent;
 import com.testflightapp.lib.TestFlight;
 
 public class AdsControlExtension extends ControlExtension implements
@@ -133,6 +134,16 @@ public class AdsControlExtension extends ControlExtension implements
 		if(loaderCallback != null && isLoaderCallbackRegistered) {
 			mContext.unregisterReceiver(loaderCallback);
 			isLoaderCallbackRegistered = false;
+		}
+	}
+	
+	@Override
+	public void onTouch(ControlTouchEvent event) {
+		super.onTouch(event);
+		if(fullScreenControl.isStarted()) {
+			if(event.getX() > 184 && event.getY() < 46) {
+				backFromFullScreen();
+			}
 		}
 	}
 
@@ -281,7 +292,7 @@ public class AdsControlExtension extends ControlExtension implements
 		fullScreenControl.showInstance(instance);
 		fullScreenControl.onStart();
 		fullScreenControl.onResume();
-//		fullScreenCloseTimer.start();
+		fullScreenCloseTimer.start();
 	}
 
 	@Override

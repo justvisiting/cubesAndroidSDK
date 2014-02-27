@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
-    <ImageView 
-        android:id="@+id/ads_full_screen_container"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:clickable="true"/>
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/ads_full_screen_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <ImageView
+            android:id="@+id/ads_fullscreen_close_btn"
+            android:layout_width="@dimen/ads_fullscreen_close_btn_width"
+            android:layout_height="@dimen/ads_fullscreen_close_btn_height"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="@dimen/ads_fullscreen_close_btn_margin_top"
+            android:layout_marginTop="@dimen/ads_fullscreen_close_btn_margin_top"
+            android:clickable="true"
+            android:src="@drawable/close_btn" />
+    </RelativeLayout>
+
+</FrameLayout>

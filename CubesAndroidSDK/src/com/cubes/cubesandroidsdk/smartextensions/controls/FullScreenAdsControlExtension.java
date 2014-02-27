@@ -40,7 +40,7 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 	}
 	
 	public void updateTimer() {
-		sendText(R.id.ads_fullscreen_timer_value, timerPrefics + String.valueOf(--counter));
+//		sendText(R.id.ads_fullscreen_timer_value, timerPrefics + String.valueOf(--counter));
 	}
 	
 	public boolean isStarted() {
