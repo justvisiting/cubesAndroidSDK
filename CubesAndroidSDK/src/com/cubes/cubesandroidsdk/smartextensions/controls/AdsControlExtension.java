@@ -292,7 +292,7 @@ public class AdsControlExtension extends ControlExtension implements
 		fullScreenControl.showInstance(instance);
 		fullScreenControl.onStart();
 		fullScreenControl.onResume();
-		fullScreenCloseTimer.start();
+//		fullScreenCloseTimer.start();
 	}
 
 	@Override
