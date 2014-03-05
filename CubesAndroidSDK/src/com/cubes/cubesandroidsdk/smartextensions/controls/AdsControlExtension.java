@@ -246,7 +246,7 @@ public class AdsControlExtension extends ControlExtension implements
 
 	private void backFromFullScreen() {
 
-		fullScreenCloseTimer.cancel();
+//		fullScreenCloseTimer.cancel();
 		fullScreenControl.onPause();
 		fullScreenControl.onStop();
 		ControlsManager.getInstance().restore();
@@ -300,7 +300,7 @@ public class AdsControlExtension extends ControlExtension implements
 		fullScreenControl.showInstance(instance);
 		fullScreenControl.onStart();
 		fullScreenControl.onResume();
-		fullScreenCloseTimer.start();
+//		fullScreenCloseTimer.start();
 	}
 
 	@Override
