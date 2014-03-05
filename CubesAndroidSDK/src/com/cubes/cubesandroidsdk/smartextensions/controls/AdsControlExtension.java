@@ -373,8 +373,11 @@ public class AdsControlExtension extends ControlExtension implements
 
 	private void drawBitmap(Bitmap bitmap) {
 
+		final Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 220, 36, false);
 		sendImage(containerImgId,
-				Bitmap.createScaledBitmap(bitmap, 220, 36, false));
+				scaledBitmap);
+		scaledBitmap.recycle();
+		bitmap.recycle();
 	}
 
 	private Bitmap makeTextAd(Bitmap bitmap, String text) {
@@ -391,12 +394,10 @@ public class AdsControlExtension extends ControlExtension implements
 		for (AdsInstance instance : defaultAdsList) {
 			if (instance.getAdsType() == AdsType.MULTIPART) {
 				try {
-					Bitmap bar = MediaStore.Images.Media.getBitmap(
+					return MediaStore.Images.Media.getBitmap(
 							mContext.getContentResolver(),
 							Uri.parse(instance.getBarUriString()));
-					return bar;
 				} catch (Exception e) {
-					e.printStackTrace();
 					return bitmap;
 				}
 			}
@@ -414,10 +415,9 @@ public class AdsControlExtension extends ControlExtension implements
 						instance.getBarTextString()));
 			} else {
 				try {
-					Bitmap bar = MediaStore.Images.Media.getBitmap(
+					drawBitmap(MediaStore.Images.Media.getBitmap(
 							mContext.getContentResolver(),
-							Uri.parse(instance.getBarUriString()));
-					drawBitmap(bar);
+							Uri.parse(instance.getBarUriString())));
 				} catch (Exception e) {
 					e.printStackTrace();
 					drawBitmap(makeEmptyAd(getDrawingArea()));
@@ -448,10 +448,9 @@ public class AdsControlExtension extends ControlExtension implements
 						instance.getBarTextString()));
 			} else {
 				try {
-					Bitmap bar = MediaStore.Images.Media.getBitmap(
+					drawBitmap(MediaStore.Images.Media.getBitmap(
 							mContext.getContentResolver(),
-							Uri.parse(instance.getBarUriString()));
-					drawBitmap(bar);
+							Uri.parse(instance.getBarUriString())));
 				} catch (Exception e) {
 					e.printStackTrace();
 					drawBitmap(makeEmptyAd(getDrawingArea()));
@@ -463,7 +462,14 @@ public class AdsControlExtension extends ControlExtension implements
 
 	private Bitmap getDrawingArea() {
 
-		return mBackground.copy(BITMAP_CONFIG, true);
+		if(mBackground == null) {
+			mBackground = Bitmap.createBitmap(width, height, BITMAP_CONFIG);
+			mBackground.setDensity(DisplayMetrics.DENSITY_DEFAULT);
+		} else if(mBackground.isRecycled()) {
+			mBackground = Bitmap.createBitmap(width, height, BITMAP_CONFIG);
+			mBackground.setDensity(DisplayMetrics.DENSITY_DEFAULT);
+		}
+		return mBackground;
 	}
 
 	private void moveCounter() {
