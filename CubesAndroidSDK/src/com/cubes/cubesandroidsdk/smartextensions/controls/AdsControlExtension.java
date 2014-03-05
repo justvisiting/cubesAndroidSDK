@@ -54,19 +54,20 @@ public class AdsControlExtension extends ControlExtension implements
 	private BroadcastReceiver loaderCallback;
 
 	private List<AdsInstance> adsList;
-	
+
 	private boolean mustInterceptActions;
-	
-	
+
 	private boolean isLoaderCallbackRegistered;
 
 	private FullScreenAdsControlExtension fullScreenControl;
 	private CountDownTimer fullScreenCloseTimer;
-	
+
 	private List<AdsInstance> defaultAdsList;
-	
+
 	private static final int TC_BAR_SHOW = 100;
-	
+
+	private ClickHintExtension hintExtension;
+
 	public AdsControlExtension(Context context, String hostAppPackageName) {
 		super(context, hostAppPackageName);
 		width = ExtensionDrawingHelper.getBarWidth(context);
@@ -89,9 +90,9 @@ public class AdsControlExtension extends ControlExtension implements
 				}
 
 				if (adsList != null && !adsList.isEmpty()) {
-					Log.v("SDK_control",
-							"loaded ads list with size - " + adsList.size());
-					
+					Log.v("SDK_control", "loaded ads list with size - "
+							+ adsList.size());
+
 					TestFlight.passCheckpoint("loaded ads list with size - "
 							+ adsList.size());
 					drawAdsInstance(adsList.get(getCounter()));
@@ -103,12 +104,12 @@ public class AdsControlExtension extends ControlExtension implements
 		fullScreenControl = new FullScreenAdsControlExtension(context,
 				hostAppPackageName);
 		fullScreenCloseTimer = new CountDownTimer(11000, 1000) {
-			
+
 			@Override
 			public void onTick(long millisUntilFinished) {
 				fullScreenControl.updateTimer();
 			}
-			
+
 			@Override
 			public void onFinish() {
 				backFromFullScreen();
@@ -116,14 +117,14 @@ public class AdsControlExtension extends ControlExtension implements
 		};
 		bindToService();
 	}
-	
+
 	public boolean mustInterceptActions() {
-		
+
 		return mustInterceptActions;
 	}
 
 	private void registerLoaderCallback() {
-		if(!isLoaderCallbackRegistered) {
+		if (!isLoaderCallbackRegistered) {
 			mContext.registerReceiver(loaderCallback, new IntentFilter(
 					Configuration.ACTION_SEND_LOADER_CALLBACK));
 			isLoaderCallbackRegistered = true;
@@ -131,17 +132,18 @@ public class AdsControlExtension extends ControlExtension implements
 	}
 
 	private void unregisterLoaderCallback() {
-		if(loaderCallback != null && isLoaderCallbackRegistered) {
+		if (loaderCallback != null && isLoaderCallbackRegistered) {
 			mContext.unregisterReceiver(loaderCallback);
 			isLoaderCallbackRegistered = false;
 		}
 	}
-	
+
 	@Override
 	public void onTouch(ControlTouchEvent event) {
 		super.onTouch(event);
-		if(fullScreenControl.isStarted()) {
-			if(event.getX() > 184 && event.getY() < 46) {
+		Log.v("sdk_click", "touch action " + event.getAction());
+		if (fullScreenControl.isActive()) {
+			if (event.getX() > 184 && event.getY() < 50) {
 				backFromFullScreen();
 			}
 		}
@@ -158,7 +160,7 @@ public class AdsControlExtension extends ControlExtension implements
 					serviceBinder = (AdsManagerServiceBinder) service;
 					registerLoaderCallback();
 					AdsInstance[] instances = serviceBinder.getDefaultAd();
-					if(instances != null) {
+					if (instances != null) {
 						defaultAdsList = Arrays.asList(instances);
 					}
 				}
@@ -167,7 +169,7 @@ public class AdsControlExtension extends ControlExtension implements
 			@Override
 			public void onServiceDisconnected(ComponentName arg0) {
 
-				//Nothing to do
+				// Nothing to do
 			}
 		};
 	}
@@ -184,8 +186,8 @@ public class AdsControlExtension extends ControlExtension implements
 	protected void showAdsBar(int containerImgId) {
 
 		this.containerImgId = containerImgId;
-		
-		if(adsList != null && !adsList.isEmpty()) {
+
+		if (adsList != null && !adsList.isEmpty()) {
 			drawAdsInstance(adsList.get(getCounter()));
 		} else {
 			drawBitmap(makeEmptyAd(getDrawingArea()));
@@ -211,7 +213,7 @@ public class AdsControlExtension extends ControlExtension implements
 			registerLoaderCallback();
 		}
 	}
-	
+
 	@Override
 	public void onStop() {
 		super.onStop();
@@ -237,32 +239,30 @@ public class AdsControlExtension extends ControlExtension implements
 		int layoutReference = event.getLayoutReference();
 		if (layoutReference == containerImgId) {
 			performBarClick();
-		} else if(layoutReference == R.id.ads_fullscreen_close_btn) {
+		} else if (layoutReference == R.id.ads_fullscreen_close_btn) {
 			backFromFullScreen();
 		}
 	}
-	
+
 	private void backFromFullScreen() {
-		
+
 		fullScreenCloseTimer.cancel();
 		fullScreenControl.onPause();
 		fullScreenControl.onStop();
 		ControlsManager.getInstance().restore();
 		mustInterceptActions = false;
 	}
-	
+
 	@Override
 	public void onListItemClick(ControlListItem listItem, int clickType,
 			int itemLayoutReference) {
-		if(fullScreenControl.isStarted()) {
-			fullScreenControl.onListItemClick(listItem, clickType, itemLayoutReference);
-		}
-	}
-	
-	@Override
-	public void onListItemSelected(ControlListItem listItem) {
-		if(fullScreenControl.isStarted()) {
-			fullScreenControl.onListItemSelected(listItem);
+		Log.v("sdk_click", "onlistitem click");
+		if (fullScreenControl.isActive()) {
+
+			final AdsInstance instance = fullScreenControl.getInstance();
+			ClickReceiver.processClick(mContext, instance.getClickAction(),
+					instance.getClickData());
+			showHint(instance.getClickAction());
 		}
 	}
 
@@ -270,23 +270,31 @@ public class AdsControlExtension extends ControlExtension implements
 
 		if (adsList != null && !adsList.isEmpty()) {
 			final AdsInstance instance = adsList.get(getCounter());
-			Log.v("SDK_ads", " clicked - " + instance.getClickData() + ", full screen" + instance.getFullscreenAds().size() + ",  counter - " + getCounter());
+			Log.v("SDK_ads", " clicked - " + instance.getClickData()
+					+ ", full screen" + instance.getFullscreenAds().size()
+					+ ",  counter - " + getCounter());
 			if (instance.isExpandable()) {
 				gotToFullScreen(instance);
-				
 			} else {
-				mContext.sendBroadcast(new Intent(
-						Configuration.ACTION_CLICK_ADS_EVENT).putExtra(
-						ClickReceiver.INTENT_CLICK_ACTION,
-						instance.getClickAction()).putExtra(
-						ClickReceiver.INTENT_CLICK_DATA,
-						instance.getClickData()));
+				showHint(instance.getClickAction());
+				ClickReceiver.processClick(mContext, instance.getClickAction(),
+						instance.getClickData());
 			}
 		}
 	}
-	
+
+	private void showHint(int clickAction) {
+
+		ControlsManager.getInstance().putToStack(this);
+		mustInterceptActions = true;
+		hintExtension = new ClickHintExtension(mContext, mHostAppPackageName);
+		hintExtension.setAction(clickAction);
+		hintExtension.onStart();
+		hintExtension.onResume();
+	}
+
 	private void gotToFullScreen(AdsInstance instance) {
-		
+
 		ControlsManager.getInstance().putToStack(this);
 		mustInterceptActions = true;
 		fullScreenControl.showInstance(instance);
@@ -298,23 +306,36 @@ public class AdsControlExtension extends ControlExtension implements
 	@Override
 	public void onRequestListItem(int layoutReference, int listItemPosition) {
 		super.onRequestListItem(layoutReference, listItemPosition);
-		
+
 		fullScreenControl.onRequestListItem(layoutReference, listItemPosition);
 	}
-	
+
 	@Override
 	public void onKey(int action, int keyCode, long timeStamp) {
 
 		if (action == Control.Intents.KEY_ACTION_RELEASE
 				&& keyCode == Control.KeyCodes.KEYCODE_BACK) {
 
-			if(fullScreenControl.isStarted()) {
+			if (hintExtension != null && hintExtension.isActive()) {
+				hideHint();
+				return;
+			}
+
+			if (fullScreenControl != null && fullScreenControl.isActive()) {
 				backFromFullScreen();
 			}
 		}
 		super.onKey(action, keyCode, timeStamp);
 	}
-	
+
+	private void hideHint() {
+		hintExtension.onPause();
+		hintExtension.onStop();
+		hintExtension.onDestroy();
+		ControlsManager.getInstance().restore();
+		mustInterceptActions = false;
+	}
+
 	@Override
 	public void onAdsMustChanged(int timerCode) {
 
@@ -324,26 +345,27 @@ public class AdsControlExtension extends ControlExtension implements
 			if (adsList != null && !adsList.isEmpty()) {
 				moveCounter();
 				drawAdsInstance(adsList.get(getCounter()));
-				Log.v("SDK_ads", "show instance - " + getCounter() + ", "  + adsList.get(getCounter()).getClickData());
+				Log.v("SDK_ads", "show instance - " + getCounter() + ", "
+						+ adsList.get(getCounter()).getClickData());
 			} else {
 				drawBitmap(makeEmptyAd(getDrawingArea()));
 			}
 			break;
 		}
 	}
-	
+
 	public void showInterstitial() {
-		
-		if(adsList != null) {
-			for(AdsInstance instance: adsList) {
-				if(instance.getAdsType() == AdsType.INTERSTITIAL) {
+
+		if (adsList != null) {
+			for (AdsInstance instance : adsList) {
+				if (instance.getAdsType() == AdsType.INTERSTITIAL) {
 					gotToFullScreen(instance);
 					return;
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Drawing functions
 	 * 
@@ -351,7 +373,8 @@ public class AdsControlExtension extends ControlExtension implements
 
 	private void drawBitmap(Bitmap bitmap) {
 
-		sendImage(containerImgId, Bitmap.createScaledBitmap(bitmap, 220, 36, false));
+		sendImage(containerImgId,
+				Bitmap.createScaledBitmap(bitmap, 220, 36, false));
 	}
 
 	private Bitmap makeTextAd(Bitmap bitmap, String text) {
@@ -362,11 +385,11 @@ public class AdsControlExtension extends ControlExtension implements
 
 	private Bitmap makeEmptyAd(Bitmap bitmap) {
 
-		if(defaultAdsList == null) {
+		if (defaultAdsList == null) {
 			return bitmap;
 		}
-		for(AdsInstance instance: defaultAdsList) {
-			if(instance.getAdsType() == AdsType.MULTIPART) {
+		for (AdsInstance instance : defaultAdsList) {
+			if (instance.getAdsType() == AdsType.MULTIPART) {
 				try {
 					Bitmap bar = MediaStore.Images.Media.getBitmap(
 							mContext.getContentResolver(),

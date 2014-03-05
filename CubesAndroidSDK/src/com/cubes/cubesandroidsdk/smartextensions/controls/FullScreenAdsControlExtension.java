@@ -2,7 +2,6 @@ package com.cubes.cubesandroidsdk.smartextensions.controls;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.os.Bundle;
@@ -10,8 +9,6 @@ import android.util.DisplayMetrics;
 
 import com.cubes.cubesandroidsdk.R;
 import com.cubes.cubesandroidsdk.adsmanager.AdsInstance;
-import com.cubes.cubesandroidsdk.adsmanager.ClickReceiver;
-import com.cubes.cubesandroidsdk.config.Configuration;
 import com.sonyericsson.extras.liveware.aef.control.Control;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlExtension;
 import com.sonyericsson.extras.liveware.extension.util.control.ControlListItem;
@@ -43,7 +40,7 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 //		sendText(R.id.ads_fullscreen_timer_value, timerPrefics + String.valueOf(--counter));
 	}
 	
-	public boolean isStarted() {
+	public boolean isActive() {
 		
 		return isStarted;
 	}
@@ -85,26 +82,9 @@ public class FullScreenAdsControlExtension extends ControlExtension {
         }
 	}
 	
-	@Override
-	public void onListItemClick(ControlListItem listItem, int clickType,
-			int itemLayoutReference) {
-		super.onListItemClick(listItem, clickType, itemLayoutReference);
-		performClick();
-	}
-	
-	private void performClick() {
-
-		mContext.sendBroadcast(new Intent(
-				Configuration.ACTION_CLICK_ADS_EVENT).putExtra(
-				ClickReceiver.INTENT_CLICK_ACTION,
-				instance.getClickAction()).putExtra(
-				ClickReceiver.INTENT_CLICK_DATA,
-				instance.getClickData()));
-	}
-
-	@Override
-	public void onListItemSelected(ControlListItem listItem) {
-		super.onListItemSelected(listItem);
+	public AdsInstance getInstance() {
+		
+		return instance;
 	}
 	
 	private ControlListItem createControlListItem(int position) {

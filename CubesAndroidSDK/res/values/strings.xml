@@ -2,4 +2,9 @@
 
     <string name="app_name">CubesAndroidSDK</string>
     <string name="ads_timer_prefics">Ad: </string>
+    
+    <string name="ads_hint_browser">Opening browser</string>
+    <string name="ads_hint_play">Opening Play store</string>
+    <string name="ads_hint_call">Starting phone call</string>
+    <string name="ads_hint_unknown">unknown</string>
 </resources>

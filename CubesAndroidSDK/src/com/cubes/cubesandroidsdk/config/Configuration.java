@@ -8,8 +8,6 @@ package com.cubes.cubesandroidsdk.config;
  */
 public class Configuration {
 	
-	public static final String ACTION_CLICK_ADS_EVENT = "com.cubes.cubesandroidsdk.adsclickevent";
-	
 	public static final String ACTION_SEND_LOADER_CALLBACK = "actionSendLoaderCallback";
 	
 	/**
