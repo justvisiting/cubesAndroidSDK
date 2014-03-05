@@ -14,6 +14,13 @@ import com.cubes.cubesandroidsdk.utils.AdXmlElements;
 
 public class Utils {
 
+	private static final String FULL_SCREEN_DATA = "full_screen_data";
+	private static final String CLICK_DATA = "click_data";
+	private static final String BAR_URI = "bar_uri";
+	private static final String BAR_TEXT = "bar_text";
+	private static final String CLICK_ACTION = "click_action";
+	private static final String ADS_TYPE = "ads_type";
+
 	public static AdsInstance convertXmlToAdsInstance(AdXmlElements xml) {
 
 		return new AdsInstance(xml.get_adType(), xml.get_clickType(),
@@ -26,12 +33,12 @@ public class Utils {
 		final AdsInstance[] instances = new AdsInstance[array.length()];
 		for (int i = 0; i < array.length(); i++) {
 			final JSONObject object = array.getJSONObject(i);
-			int adsType = object.getInt("ads_type");
-			int clickAction = object.getInt("click_action");
-			String barText = object.getString("bar_text");
-			String barUri = object.getString("bar_uri");
-			String clickData = object.getString("click_data");
-			String files = object.getString("full_screen_data");
+			int adsType = object.getInt(ADS_TYPE);
+			int clickAction = object.getInt(CLICK_ACTION);
+			String barText = object.getString(BAR_TEXT);
+			String barUri = object.getString(BAR_URI);
+			String clickData = object.getString(CLICK_DATA);
+			String files = object.getString(FULL_SCREEN_DATA);
 			List<String> fullScreenUrls = new ArrayList<String>();
 			if(!TextUtils.isEmpty(files) && !files.equals("[]")) {
 				JSONArray fullScreenJson = new JSONArray(files);
@@ -56,14 +63,14 @@ public class Utils {
 		final JSONArray array = new JSONArray();
 		for (AdsInstance instance : instances) {
 			final JSONObject object = new JSONObject();
-			object.put("ads_type", instance.getAdsType());
-			object.put("click_action", instance.getClickAction());
-			object.put("bar_text", TextUtils.isEmpty(instance
+			object.put(ADS_TYPE, instance.getAdsType());
+			object.put(CLICK_ACTION, instance.getClickAction());
+			object.put(BAR_TEXT, TextUtils.isEmpty(instance
 					.getBarTextString()) ? "null" : instance.getBarTextString());
-			object.put("bar_uri",
+			object.put(BAR_URI,
 					TextUtils.isEmpty(instance.getBarUriString()) ? "null"
 							: instance.getBarUriString());
-			object.put("click_data", instance.getClickData());
+			object.put(CLICK_DATA, instance.getClickData());
 			final List<String> fullScreen = instance.getFullscreenAds();
 			final JSONArray fullScreenJson = new JSONArray();
 			if (fullScreen != null && !fullScreen.isEmpty()) {
@@ -71,7 +78,7 @@ public class Utils {
 					fullScreenJson.put(fullScreen.get(i));
 				}
 			}
-			object.put("full_screen_data", fullScreenJson.toString());
+			object.put(FULL_SCREEN_DATA, fullScreenJson.toString());
 			array.put(object);
 		}
 		return array.toString();
