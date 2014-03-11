@@ -9,8 +9,6 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.URLUtil;
 
-import com.cubes.cubesandroidsdk.config.ClickAdsAction;
-
 /**
  * Handle events of click on ads and perform appropriate action
  * 
@@ -19,33 +17,47 @@ import com.cubes.cubesandroidsdk.config.ClickAdsAction;
  */
 public class ClickReceiver {
 
+	private static final String DEFAULT_URL = "http://cubes13.com";
+
 	public static void processClick(Context context, int clickAction,
 			String clickData) {
+		
 
-		switch (clickAction) {
-		case ClickAdsAction.BROWSER_ACTION:
-			openBrowser(context, clickData);
-			break;
-		case ClickAdsAction.CALL_ME_ACTION:
-			performCall(context, clickData);
-			break;
-		case ClickAdsAction.INITIATE_BUY_ACTION:
-			openBrowser(context, clickData);
-			break;
-		case ClickAdsAction.INITIATE_PHONE_CALL_ACTION:
-			performCall(context, clickData);
-			break;
-		case ClickAdsAction.PLAY_STORE_ACTION:
-			openBrowser(context, clickData);
-			break;
+		if (URLUtil.isValidUrl(clickData)) {
+			context.startActivity(new Intent(Intent.ACTION_VIEW).setData(
+					Uri.parse(clickData)).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+		} else if(isPhoneValid(clickData)) {
+			context.startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(clickData))
+			.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+		} else {
+			context.startActivity(new Intent(Intent.ACTION_VIEW).setData(
+					Uri.parse(DEFAULT_URL)).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 		}
+		
+//		switch (clickAction) {
+//		case ClickAdsAction.BROWSER_ACTION:
+//			openBrowser(context, clickData);
+//			break;
+//		case ClickAdsAction.CALL_ME_ACTION:
+//			performCall(context, clickData);
+//			break;
+//		case ClickAdsAction.INITIATE_BUY_ACTION:
+//			openBrowser(context, clickData);
+//			break;
+//		case ClickAdsAction.INITIATE_PHONE_CALL_ACTION:
+//			performCall(context, clickData);
+//			break;
+//		case ClickAdsAction.PLAY_STORE_ACTION:
+//			openBrowser(context, clickData);
+//			break;
+//		}
 	}
 
-	private static void openBrowser(Context context, String url) {
+	private static void openBrowser(Context context, String data) {
 
-		if (URLUtil.isValidUrl(url)) {
+		if (URLUtil.isValidUrl(data)) {
 			context.startActivity(new Intent(Intent.ACTION_VIEW).setData(
-					Uri.parse(url)).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+					Uri.parse(data)).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 		}
 	}
 
