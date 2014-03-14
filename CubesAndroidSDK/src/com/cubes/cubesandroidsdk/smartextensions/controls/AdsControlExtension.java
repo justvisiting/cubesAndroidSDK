@@ -364,6 +364,14 @@ public class AdsControlExtension extends ControlExtension implements
 				}
 			}
 		}
+		if(defaultAdsList != null) {
+			for(AdsInstance instance: defaultAdsList) {
+				if (instance.getAdsType() == AdsType.INTERSTITIAL) {
+					gotToFullScreen(instance);
+					return;
+				}
+			}
+		}
 	}
 
 	/**

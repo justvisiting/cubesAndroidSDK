@@ -1,10 +1,15 @@
 package com.cubes.cubesandroidsdk.smartextensions.controls;
 
 
+import java.io.ByteArrayOutputStream;
+
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 
 import com.cubes.cubesandroidsdk.R;
@@ -89,15 +94,31 @@ public class FullScreenAdsControlExtension extends ControlExtension {
 	
 	private ControlListItem createControlListItem(int position) {
 
-        ControlListItem item = new ControlListItem();
+        final ControlListItem item = new ControlListItem();
         item.layoutReference = R.id.ads_fullscreen_gallery;
         item.dataXmlLayout = R.layout.ads_full_screen;
         item.listItemId = position;
         item.listItemPosition = position;
 
-        Bundle contentBundle = new Bundle();
+        byte[] buffer = null;
+		try {
+			final Bitmap bmp = MediaStore.Images.Media.getBitmap(
+					mContext.getContentResolver(),
+					Uri.parse(instance.getFullscreenAds().get(position)));
+			final ByteArrayOutputStream os = new ByteArrayOutputStream(256);
+	        bmp.compress(CompressFormat.PNG, 100, os);
+	        buffer = os.toByteArray();
+	        os.flush();
+	        os.close();
+	        bmp.recycle();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+        
+        final Bundle contentBundle = new Bundle();
         contentBundle.putInt(Control.Intents.EXTRA_LAYOUT_REFERENCE, R.id.ads_full_screen_container);
-        contentBundle.putString(Control.Intents.EXTRA_DATA_URI, instance.getFullscreenAds().get(position));
+        contentBundle.putByteArray(Control.Intents.EXTRA_DATA, buffer);
 
         item.layoutData = new Bundle[1];
         item.layoutData[0] = contentBundle;
